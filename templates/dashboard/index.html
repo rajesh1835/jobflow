@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- DASHBOARD HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-950 tracking-tight">
+                Good morning, {{ request.user.first_name|default:"Rajesh" }}
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">
+                Here's what's happening with your job search.
+            </p>
+        </div>
+
+        <button type="button"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-slate-950 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition shrink-0">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Add Application</span>
+        </button>
+    </div>
+
+    <!-- TOP STATISTICS CARDS (4 Columns) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 1. Applications -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <span class="text-xs font-medium text-slate-500">Applications</span>
+            <div class="mt-3">
+                <span class="text-2xl font-bold text-slate-950 tracking-tight">
+                    {{ cards.total_applications|default:"24" }}
+                </span>
+                <p class="text-[11px] text-slate-400 mt-0.5">Total applications</p>
+            </div>
+        </div>
+
+        <!-- 2. Active Applications -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <span class="text-xs font-medium text-slate-500">Active Applications</span>
+            <div class="mt-3">
+                <span class="text-2xl font-bold text-slate-950 tracking-tight">
+                    {{ cards.active_applications|default:"16" }}
+                </span>
+                <p class="text-[11px] text-slate-400 mt-0.5">Currently in progress</p>
+            </div>
+        </div>
+
+        <!-- 3. Interviews -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <span class="text-xs font-medium text-slate-500">Interviews</span>
+            <div class="mt-3">
+                <span class="text-2xl font-bold text-slate-950 tracking-tight">
+                    {{ cards.total_interviews|default:"3" }}
+                </span>
+                <p class="text-[11px] text-slate-400 mt-0.5">Upcoming interviews</p>
+            </div>
+        </div>
+
+        <!-- 4. Offers -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <span class="text-xs font-medium text-slate-500">Offers</span>
+            <div class="mt-3">
+                <span class="text-2xl font-bold text-slate-950 tracking-tight">
+                    {{ cards.total_offers|default:"1" }}
+                </span>
+                <p class="text-[11px] text-slate-400 mt-0.5">Offers received</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MIDDLE SECTION: PIPELINE + NEXT INTERVIEW -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        
+        <!-- Application Pipeline Card (8 Cols) -->
+        <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-50">
+                <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Application Pipeline</h2>
+                <span class="text-[11px] font-medium text-slate-400">Current Distribution</span>
+            </div>
+
+            <!-- Pipeline Visual Bar / Stage Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-5">
+                <!-- Applied (Gray) -->
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                    <span class="text-[11px] font-semibold text-slate-500">Applied</span>
+                    <p class="text-xl font-bold text-slate-900 mt-1">{{ pipeline.applied|default:"12" }}</p>
+                </div>
+
+                <!-- Screening (Blue) -->
+                <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-100/70">
+                    <span class="text-[11px] font-semibold text-sky-700">Screening</span>
+                    <p class="text-xl font-bold text-sky-950 mt-1">{{ pipeline.screening|default:"5" }}</p>
+                </div>
+
+                <!-- Interview (Purple) -->
+                <div class="p-3.5 rounded-xl bg-purple-50/70 border border-purple-100/70">
+                    <span class="text-[11px] font-semibold text-purple-700">Interview</span>
+                    <p class="text-xl font-bold text-purple-950 mt-1">{{ pipeline.interview|default:"3" }}</p>
+                </div>
+
+                <!-- Offer (Green) -->
+                <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100/70">
+                    <span class="text-[11px] font-semibold text-emerald-700">Offer</span>
+                    <p class="text-xl font-bold text-emerald-950 mt-1">{{ pipeline.offer|default:"1" }}</p>
+                </div>
+
+                <!-- Rejected (Red) -->
+                <div class="p-3.5 rounded-xl bg-rose-50/70 border border-rose-100/70 col-span-2 sm:col-span-1">
+                    <span class="text-[11px] font-semibold text-rose-700">Rejected</span>
+                    <p class="text-xl font-bold text-rose-950 mt-1">{{ pipeline.rejected|default:"8" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Interview Card (4 Cols) -->
+        <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between pb-3">
+                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Next Interview</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                </div>
+
+                {% if next_interview %}
+                <!-- Dynamic Upcoming Interview -->
+                <div class="mt-2 space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-[11px]">
+                            {{ next_interview.company|slice:":1" }}
+                        </span>
+                        <h3 class="text-sm font-bold text-slate-900">{{ next_interview.company }}</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 pl-8">{{ next_interview.position }}</p>
+                    <div class="pl-8 pt-3 flex items-center gap-3 text-xs font-semibold text-purple-700">
+                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> {{ next_interview.date }}</span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> {{ next_interview.time }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Default / Fallback Preview State -->
+                <div class="mt-2 space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-[11px]">
+                            G
+                        </span>
+                        <h3 class="text-sm font-bold text-slate-900">Google</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 pl-8">Software Engineer</p>
+                    <div class="pl-8 pt-3 flex items-center gap-3 text-xs font-semibold text-purple-700">
+                        <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Tomorrow</span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> 10:30 AM</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Card Action Footer -->
+            <div class="mt-6 pt-4 border-t border-slate-50">
+                <a href="#"
+                   class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-semibold transition border border-slate-100">
+                    <span>View Interview</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-400"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RECENT APPLICATIONS TABLE CARD -->
+    <div class="bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden">
+        <!-- Table Header -->
+        <div class="p-5 border-b border-slate-50 flex items-center justify-between">
+            <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Recent Applications</h2>
+            <a href="#" class="text-xs font-semibold text-slate-500 hover:text-slate-900 transition flex items-center gap-1">
+                <span>View all</span>
+                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </a>
+        </div>
+
+        <!-- Table Responsive Container -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <th class="py-3 px-5">Company</th>
+                        <th class="py-3 px-4">Position</th>
+                        <th class="py-3 px-4">Applied</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-5 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 text-xs text-slate-700">
+                    {% if recent_applications %}
+                        {% for application in recent_applications %}
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                                    {{ application.company|slice:":1" }}
+                                </span>
+                                <span>{{ application.company }}</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-medium text-slate-700">{{ application.job_title }}</td>
+                            <td class="py-3.5 px-4 text-slate-400">{{ application.applied_date|date:"M d" }}</td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold
+                                    {% if application.status == 'applied' %} bg-slate-100 text-slate-600
+                                    {% elif application.status == 'screening' %} bg-sky-50 text-sky-700 border border-sky-200/50
+                                    {% elif application.status == 'interview' %} bg-purple-50 text-purple-700 border border-purple-200/50
+                                    {% elif application.status == 'offer' %} bg-emerald-50 text-emerald-700 border border-emerald-200/50
+                                    {% elif application.status == 'rejected' %} bg-rose-50 text-rose-700 border border-rose-200/50
+                                    {% else %} bg-slate-100 text-slate-600 {% endif %}">
+                                    {{ application.get_status_display|default:application.status|title }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-5 text-right">
+                                <button type="button" class="text-slate-400 hover:text-slate-600 p-1">
+                                    <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Static Reference Rows When Backend Data is Pending -->
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">S</span>
+                                <span>Stripe</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-medium text-slate-700">Frontend Engineer</td>
+                            <td class="py-3.5 px-4 text-slate-400">Aug 02</td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200/50">Interview</span>
+                            </td>
+                            <td class="py-3.5 px-5 text-right">
+                                <button type="button" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">V</span>
+                                <span>Vercel</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-medium text-slate-700">Full Stack Developer</td>
+                            <td class="py-3.5 px-4 text-slate-400">Jul 28</td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">Applied</span>
+                            </td>
+                            <td class="py-3.5 px-5 text-right">
+                                <button type="button" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">G</span>
+                                <span>Google</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-medium text-slate-700">Software Engineer</td>
+                            <td class="py-3.5 px-4 text-slate-400">Jul 25</td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200/50">Screening</span>
+                            </td>
+                            <td class="py-3.5 px-5 text-right">
+                                <button type="button" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">L</span>
+                                <span>Linear</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-medium text-slate-700">Product Designer</td>
+                            <td class="py-3.5 px-4 text-slate-400">Jul 20</td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/50">Offer</span>
+                            </td>
+                            <td class="py-3.5 px-5 text-right">
+                                <button type="button" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">G</span>
+                                <span>GitHub</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-medium text-slate-700">DevOps Engineer</td>
+                            <td class="py-3.5 px-4 text-slate-400">Jul 14</td>
+                            <td class="py-3.5 px-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/50">Rejected</span>
+                            </td>
+                            <td class="py-3.5 px-5 text-right">
+                                <button type="button" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

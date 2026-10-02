@@ -1,1006 +1,227 @@
 {% load static %}
-
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-50">
+<html lang="en" class="h-full bg-[#f8f9fc]">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %} - JobFlow</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        {% block title %}
-        JobFlow
-        {% endblock %}
-        - Job Application Tracker
-    </title>
-
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS v4 CDN -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     {% block extra_css %}{% endblock %}
-
 </head>
 
-
-<body
-    class="h-full flex flex-col font-sans
-           text-slate-900 antialiased
-           selection:bg-indigo-500
-           selection:text-white"
->
-
+<body class="h-full flex font-sans text-slate-900 antialiased bg-[#f8f9fc] selection:bg-slate-900 selection:text-white">
 
     <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden transition-opacity duration-300 opacity-0 lg:hidden"
+        onclick="toggleSidebar()"></div>
 
-    <div
-        id="sidebar-backdrop"
-        class="fixed inset-0 bg-slate-900/50
-               z-40 hidden
-               transition-opacity duration-300
-               opacity-0 lg:hidden"
-        onclick="toggleSidebar()"
-    >
-    </div>
+    <!-- COMPACT MODERN SIDEBAR -->
+    <aside id="sidebar"
+        class="fixed top-0 bottom-0 left-0 z-50 w-60 bg-white border-r border-slate-100 flex flex-col justify-between transition-transform duration-300 -translate-x-full lg:translate-x-0 px-4 py-5">
 
-
-    <!-- SIDEBAR -->
-
-    <aside
-        id="sidebar"
-        class="fixed top-0 bottom-0 left-0
-               z-50 w-60 bg-white
-               border-r border-slate-200
-               flex flex-col
-               transition-transform duration-300
-               -translate-x-full
-               lg:translate-x-0"
-    >
-
-        <!-- Logo Header -->
-
-        <div
-            class="h-16 flex items-center
-                   px-5 border-b border-slate-100
-                   gap-3"
-        >
-
-            <div
-                class="h-9 w-9 bg-indigo-600
-                       rounded-lg
-                       flex items-center
-                       justify-center
-                       text-white shadow-sm
-                       shrink-0"
-            >
-                <i
-                    data-lucide="briefcase"
-                    class="w-5 h-5"
-                ></i>
+        <div class="space-y-6">
+            <!-- Brand Logo -->
+            <div class="flex items-center justify-between px-2">
+                <a href="{% url 'dashboard' %}" class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-xs">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                    </div>
+                    <span class="text-base font-bold tracking-tight text-slate-900">JobFlow</span>
+                </a>
+                <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
 
-            <div class="min-w-0 flex-1">
+            <!-- Primary Navigation Links -->
+            <nav class="space-y-1">
+                <a href="{% url 'dashboard' %}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-semibold rounded-2xl bg-slate-950 text-white shadow-xs">
+                    <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
+                    <span>Dashboard</span>
+                </a>
 
-                <h1
-                    class="text-base font-bold
-                           text-slate-900
-                           leading-none truncate"
-                >
-                    JobFlow
-                </h1>
+                <a href="{% url 'applications' %}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="file-text" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                    <span>Applications</span>
+                </a>
 
-                <p
-                    class="text-xs text-slate-500
-                           truncate mt-0.5"
-                >
-                    Job Application Tracker
-                </p>
+                <a href="{% url 'companies' %}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="building-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                    <span>Companies</span>
+                </a>
 
-            </div>
+                <a href="{% url 'interviews' %}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                    <span>Interviews</span>
+                </a>
 
-
-            <button
-                onclick="toggleSidebar()"
-                class="lg:hidden
-                       text-slate-400
-                       hover:text-slate-600 p-1"
-            >
-                <i
-                    data-lucide="x"
-                    class="w-5 h-5"
-                ></i>
-            </button>
-
+                <a href="{% url 'analytics' %}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
         </div>
 
-
-        <!-- NAVIGATION -->
-
-        <nav
-            class="flex-1 px-3 py-4
-                   space-y-1 overflow-y-auto"
-        >
-
-            <a
-                href="{% url 'dashboard' %}"
-                class="nav-item flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       transition-colors gap-3
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900"
-            >
-
-                <i
-                    data-lucide="layout-dashboard"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Dashboard
-                </span>
-
+        <!-- Sidebar Bottom Footer -->
+        <div class="pt-4 border-t border-slate-100 space-y-1">
+            <a href="#"
+                class="flex items-center gap-3 px-3.5 py-2 text-xs font-medium rounded-2xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition">
+                <i data-lucide="settings" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                <span>Settings</span>
             </a>
-
-
-            <a
-                href="#"
-                class="nav-item flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       transition-colors gap-3
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900"
-            >
-
-                <i
-                    data-lucide="file-text"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Applications
-                </span>
-
+            <a href="{% url 'logout' %}"
+                class="flex items-center gap-3 px-3.5 py-2 text-xs font-medium rounded-2xl text-rose-600 hover:bg-rose-50 transition">
+                <i data-lucide="log-out" class="w-4 h-4 text-rose-500 shrink-0"></i>
+                <span>Logout</span>
             </a>
-
-
-            <a
-                href="#"
-                class="nav-item flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       transition-colors gap-3
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900"
-            >
-
-                <i
-                    data-lucide="building-2"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Companies
-                </span>
-
-            </a>
-
-
-            <a
-                href="#"
-                class="nav-item flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       transition-colors gap-3
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900"
-            >
-
-                <i
-                    data-lucide="calendar-check"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Interviews
-                </span>
-
-            </a>
-
-
-            <a
-                href="#"
-                class="nav-item flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       transition-colors gap-3
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900"
-            >
-
-                <i
-                    data-lucide="bar-chart-3"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Analytics
-                </span>
-
-            </a>
-
-
-            <a
-                href="#"
-                class="nav-item flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       transition-colors gap-3
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900"
-            >
-
-                <i
-                    data-lucide="calendar"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Calendar
-                </span>
-
-            </a>
-
-
-            <a
-                href="#"
-                class="nav-item flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       transition-colors gap-3
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900"
-            >
-
-                <i
-                    data-lucide="file-badge-2"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Resume
-                </span>
-
-            </a>
-
-        </nav>
-
-
-        <!-- SIDEBAR FOOTER -->
-
-        <div
-            class="p-3 border-t
-                   border-slate-100
-                   space-y-1"
-        >
-
-            <a
-                href="#"
-                class="flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       text-slate-600
-                       hover:bg-slate-50
-                       hover:text-slate-900
-                       transition-colors gap-3"
-            >
-
-                <i
-                    data-lucide="settings"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Settings
-                </span>
-
-            </a>
-
-
-            <a
-                href="{% url 'logout' %}"
-                class="flex items-center
-                       px-3 py-2 text-xs
-                       font-medium rounded-md
-                       text-red-600
-                       hover:bg-red-50
-                       transition-colors gap-3"
-            >
-
-                <i
-                    data-lucide="log-out"
-                    class="w-4 h-4 shrink-0"
-                ></i>
-
-                <span class="truncate">
-                    Logout
-                </span>
-
-            </a>
-
         </div>
-
     </aside>
 
+    <!-- CONTENT WRAPPER -->
+    <div class="lg:pl-60 flex flex-col flex-1 min-h-screen">
 
-    <!-- MAIN WRAPPER -->
-
-    <div
-        class="lg:pl-60 flex flex-col
-               flex-1 min-h-screen"
-    >
-
-
-        <!-- TOP NAVBAR -->
-
+        <!-- MINIMAL TOP NAVIGATION (No Breadcrumbs) -->
         <header
-            class="sticky top-0 z-30
-                   h-16 bg-white
-                   border-b border-slate-200
-                   px-4 sm:px-6
-                   flex items-center
-                   justify-between gap-4"
-        >
+            class="sticky top-0 z-30 h-16 bg-[#f8f9fc]/80 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between gap-4">
 
-            <!-- LEFT -->
-
-            <div class="flex items-center gap-3">
-
-                <button
-                    onclick="toggleSidebar()"
-                    class="p-2 -ml-2 rounded-md
-                           text-slate-500
-                           hover:text-slate-700
-                           hover:bg-slate-100
-                           lg:hidden"
-                >
-
-                    <i
-                        data-lucide="menu"
-                        class="w-5 h-5"
-                    ></i>
-
+            <div class="flex items-center gap-3 flex-1">
+                <button onclick="toggleSidebar()" class="p-2 -ml-2 rounded-xl text-slate-600 hover:bg-white lg:hidden">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
 
-
-                <div>
-
-                    <h2
-                        class="text-sm font-semibold
-                               text-slate-900
-                               leading-tight"
-                    >
-                        {% block page_title %}
-                            Dashboard
-                        {% endblock %}
-                    </h2>
-
-
-                    <nav
-                        class="flex items-center
-                               gap-1.5 text-xs
-                               text-slate-500 mt-0.5"
-                    >
-
-                        <a
-                            href="{% url 'home' %}"
-                            class="hover:text-slate-700"
-                        >
-                            App
-                        </a>
-
-                        <i
-                            data-lucide="chevron-right"
-                            class="w-3 h-3 text-slate-400"
-                        ></i>
-
-                        <span
-                            class="text-slate-700
-                                   font-medium"
-                        >
-                            {% block breadcrumb %}
-                                Dashboard
-                            {% endblock %}
-                        </span>
-
-                    </nav>
-
+                <!-- Search Pill Input -->
+                <div class="relative w-full max-w-xs md:max-w-sm">
+                    <i data-lucide="search"
+                        class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Search applications, companies..."
+                        class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200/80 rounded-full text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 shadow-2xs transition">
                 </div>
-
             </div>
 
-
-            <!-- RIGHT -->
-
-            <div
-                class="flex items-center
-                       gap-3 sm:gap-4"
-            >
-
-                <!-- Search -->
-
-                <div
-                    class="relative hidden sm:block
-                           w-48 md:w-64"
-                >
-
-                    <i
-                        data-lucide="search"
-                        class="w-4 h-4
-                               absolute left-3
-                               top-1/2
-                               -translate-y-1/2
-                               text-slate-400"
-                    ></i>
-
-                    <input
-                        type="text"
-                        placeholder="Search applications..."
-                        class="w-full pl-9 pr-3 py-1.5
-                               bg-slate-50
-                               border border-slate-200
-                               rounded-lg text-xs
-                               text-slate-800
-                               placeholder-slate-400
-                               focus:outline-none
-                               focus:ring-2
-                               focus:ring-indigo-500/20
-                               focus:border-indigo-500
-                               transition-all"
-                    >
-
-                </div>
-
-
-                <!-- Notifications -->
-
+            <!-- Profile & Notification Controls -->
+            <div class="flex items-center gap-3">
                 <button
-                    class="relative p-2
-                           rounded-lg
-                           text-slate-500
-                           hover:text-slate-700
-                           hover:bg-slate-100
-                           transition-colors"
-                >
-
-                    <i
-                        data-lucide="bell"
-                        class="w-4 h-4"
-                    ></i>
-
-                    <span
-                        class="absolute top-1.5
-                               right-1.5
-                               w-2 h-2
-                               bg-indigo-600
-                               rounded-full
-                               ring-2 ring-white"
-                    ></span>
-
+                    class="relative w-9 h-9 rounded-full bg-white border border-slate-200/70 text-slate-600 flex items-center justify-center hover:bg-slate-50 transition shadow-2xs">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span class="absolute top-2 right-2 w-1.5 h-1.5 bg-slate-900 rounded-full"></span>
                 </button>
 
+                <div class="h-4 w-px bg-slate-200"></div>
 
-                <div
-                    class="h-4 w-px
-                           bg-slate-200"
-                ></div>
-
-
-                <!-- PROFILE -->
-
+                <!-- User Dropdown Menu -->
                 <div class="relative">
-
-                    <button
-                        id="profile-menu-button"
-                        onclick="toggleProfileDropdown()"
-                        class="flex items-center gap-2
-                               p-1 rounded-lg
-                               hover:bg-slate-100
-                               transition-colors
-                               text-left
-                               focus:outline-none"
-                    >
-
+                    <button id="profile-menu-button" onclick="toggleProfileDropdown()"
+                        class="flex items-center gap-2.5 p-1 rounded-full hover:bg-white transition focus:outline-hidden">
                         {% if request.user.profile_image %}
-
-                            <img
-                                src="{{ request.user.profile_image.url }}"
-                                alt="{{ request.user.email }}"
-                                class="w-7 h-7
-                                       rounded-full
-                                       object-cover
-                                       ring-1
-                                       ring-slate-200"
-                            >
-
+                        <img src="{{ request.user.profile_image.url }}" alt="{{ request.user.full_name }}"
+                            class="w-8 h-8 rounded-full object-cover ring-2 ring-white">
                         {% else %}
-
-                            <div
-                                class="w-7 h-7
-                                       rounded-full
-                                       bg-indigo-600
-                                       text-white
-                                       flex items-center
-                                       justify-center
-                                       text-[11px]
-                                       font-semibold
-                                       ring-1
-                                       ring-slate-200"
-                            >
-                                {{ request.user.first_name|first|upper }}
-                            </div>
-
+                        <div
+                            class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold ring-2 ring-white">
+                            {{ request.user.initials }}
+                        </div>
                         {% endif %}
 
-
-                        <span
-                            class="text-xs
-                                   font-semibold
-                                   text-slate-700
-                                   hidden md:inline-block"
-                        >
+                        <span class="text-xs font-semibold text-slate-800 hidden sm:inline-block">
                             {{ request.user.first_name }}
                         </span>
 
-
-                        <i
-                            data-lucide="chevron-down"
-                            class="w-3.5 h-3.5
-                                   text-slate-400
-                                   transition-transform
-                                   duration-200"
-                            id="profile-chevron"
-                        ></i>
-
+                        <i data-lucide="chevron-down" id="profile-chevron"
+                            class="w-3.5 h-3.5 text-slate-400 transition-transform"></i>
                     </button>
 
-
-                    <!-- PROFILE DROPDOWN -->
-
-                    <div
-                        id="profile-dropdown"
-                        class="hidden absolute right-0
-                               mt-2 w-56 bg-white
-                               rounded-lg shadow-lg
-                               border border-slate-100
-                               py-1.5 z-50
-                               transform transition-all
-                               duration-150
-                               origin-top-right
-                               opacity-0 scale-95"
-                    >
-
-                        <div
-                            class="px-3 py-2
-                                   border-b border-slate-100
-                                   flex items-center gap-3"
-                        >
-
-                            {% if request.user.profile_image %}
-
-                                <img
-                                    src="{{ request.user.profile_image.url }}"
-                                    alt="{{ request.user.email }}"
-                                    class="w-7 h-7 rounded-full
-                                           object-cover
-                                           ring-1 ring-slate-200"
-                                >
-
-                            {% else %}
-
-                                <div
-                                    class="w-7 h-7
-                                           rounded-full
-                                           bg-indigo-600
-                                           text-white
-                                           flex items-center
-                                           justify-center
-                                           text-[11px]
-                                           font-semibold"
-                                >
-                                    {{ request.user.first_name|first|upper }}
-                                </div>
-
-                            {% endif %}
-
-
-                            <div class="min-w-0">
-
-                                <p
-                                    class="text-xs font-semibold
-                                           text-slate-900
-                                           truncate"
-                                >
-                                    {{ request.user.username|default:request.user.email }}
-                                </p>
-
-                                <p
-                                    class="text-[11px]
-                                           text-slate-500
-                                           truncate"
-                                >
-                                    {{ request.user.email }}
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="py-1">
-
-                            <a
-                                href="#"
-                                class="flex items-center gap-2.5
-                                       px-3 py-1.5 text-xs
-                                       text-slate-600
-                                       hover:bg-slate-50
-                                       hover:text-slate-900"
-                            >
-
-                                <i
-                                    data-lucide="user"
-                                    class="w-3.5 h-3.5
-                                           text-slate-400"
-                                ></i>
-
-                                Profile Settings
-
-                            </a>
-
-                        </div>
-
-
-                        <div
-                            class="border-t border-slate-100
-                                   pt-1"
-                        >
-
-                            <a
-                                href="{% url 'logout' %}"
-                                class="flex items-center gap-2.5
-                                       px-3 py-1.5 text-xs
-                                       text-red-600
-                                       hover:bg-red-50"
-                            >
-
-                                <i
-                                    data-lucide="log-out"
-                                    class="w-3.5 h-3.5"
-                                ></i>
-
-                                Logout
-
-                            </a>
-
-                        </div>
-
+                    <div id="profile-dropdown"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-lg border border-slate-100 py-1.5 z-50 opacity-0 scale-95 transition-all">
+                        <a href="#"
+                            class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 transition">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i> Profile
+                        </a>
+                        <a href="#"
+                            class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 transition">
+                            <i data-lucide="sliders" class="w-3.5 h-3.5 text-slate-400"></i> Preferences
+                        </a>
+                        <div class="border-t border-slate-100 my-1"></div>
+                        <a href="{% url 'logout' %}"
+                            class="flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 transition">
+                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+                        </a>
                     </div>
-
                 </div>
-
             </div>
-
         </header>
 
-
-        <!-- DJANGO MESSAGES -->
-
-        {% if messages %}
-
-            <div
-                class="px-4 sm:px-6 pt-4
-                       space-y-2"
-            >
-
-                {% for message in messages %}
-
-                    <div
-                        class="flex items-center
-                               justify-between
-                               p-3 rounded-lg
-                               border text-xs
-                               font-medium shadow-sm
-                               {% if message.tags == 'success' %}
-                                   bg-emerald-50
-                                   text-emerald-800
-                                   border-emerald-200
-                               {% elif message.tags == 'warning' %}
-                                   bg-amber-50
-                                   text-amber-800
-                                   border-amber-200
-                               {% elif message.tags == 'error' %}
-                                   bg-rose-50
-                                   text-rose-800
-                                   border-rose-200
-                               {% else %}
-                                   bg-sky-50
-                                   text-sky-800
-                                   border-sky-200
-                               {% endif %}"
-                    >
-
-                        <div class="flex items-center gap-2.5">
-
-                            <i
-                                data-lucide="info"
-                                class="w-4 h-4 shrink-0"
-                            ></i>
-
-                            <span>
-                                {{ message }}
-                            </span>
-
-                        </div>
-
-
-                        <button
-                            onclick="this.parentElement.remove()"
-                            class="p-0.5
-                                   hover:opacity-70
-                                   transition-opacity"
-                        >
-
-                            <i
-                                data-lucide="x"
-                                class="w-4 h-4"
-                            ></i>
-
-                        </button>
-
-                    </div>
-
-                {% endfor %}
-
-            </div>
-
-        {% endif %}
-
-
-        <!-- MAIN CONTENT -->
-
-        <main
-            class="flex-1 px-4 sm:px-6
-                   py-6"
-        >
-
-            {% block content %}
-            {% endblock %}
-
+        <!-- MAIN PAGE CONTAINER -->
+        <main class="flex-1 px-6 sm:px-8 py-6 max-w-7xl w-full mx-auto">
+            {% block content %}{% endblock %}
         </main>
-
     </div>
 
-
-    <!-- JAVASCRIPT -->
-
     <script>
-
         lucide.createIcons();
 
-
         function toggleSidebar() {
-
-            const sidebar =
-                document.getElementById('sidebar');
-
-            const backdrop =
-                document.getElementById('sidebar-backdrop');
-
-            const isOpen =
-                !sidebar.classList.contains(
-                    '-translate-x-full'
-                );
-
-
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
             if (isOpen) {
-
-                sidebar.classList.add(
-                    '-translate-x-full'
-                );
-
-                backdrop.classList.add(
-                    'opacity-0'
-                );
-
-                setTimeout(() => {
-
-                    backdrop.classList.add(
-                        'hidden'
-                    );
-
-                }, 300);
-
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => backdrop.classList.add('hidden'), 300);
             } else {
-
-                backdrop.classList.remove(
-                    'hidden'
-                );
-
-                setTimeout(() => {
-
-                    backdrop.classList.remove(
-                        'opacity-0'
-                    );
-
-                }, 10);
-
-                sidebar.classList.remove(
-                    '-translate-x-full'
-                );
-
+                backdrop.classList.remove('hidden');
+                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+                sidebar.classList.remove('-translate-x-full');
             }
-
         }
-
 
         function toggleProfileDropdown() {
-
-            const dropdown =
-                document.getElementById(
-                    'profile-dropdown'
-                );
-
-            const chevron =
-                document.getElementById(
-                    'profile-chevron'
-                );
-
-            const isHidden =
-                dropdown.classList.contains(
-                    'hidden'
-                );
-
+            const dropdown = document.getElementById('profile-dropdown');
+            const chevron = document.getElementById('profile-chevron');
+            const isHidden = dropdown.classList.contains('hidden');
 
             if (isHidden) {
-
-                dropdown.classList.remove(
-                    'hidden'
-                );
-
+                dropdown.classList.remove('hidden');
                 setTimeout(() => {
-
-                    dropdown.classList.remove(
-                        'opacity-0',
-                        'scale-95'
-                    );
-
-                    dropdown.classList.add(
-                        'opacity-100',
-                        'scale-100'
-                    );
-
+                    dropdown.classList.remove('opacity-0', 'scale-95');
+                    dropdown.classList.add('opacity-100', 'scale-100');
                 }, 10);
-
-                chevron.classList.add(
-                    'rotate-180'
-                );
-
+                chevron.classList.add('rotate-180');
             } else {
-
-                dropdown.classList.remove(
-                    'opacity-100',
-                    'scale-100'
-                );
-
-                dropdown.classList.add(
-                    'opacity-0',
-                    'scale-95'
-                );
-
-                chevron.classList.remove(
-                    'rotate-180'
-                );
-
-                setTimeout(() => {
-
-                    dropdown.classList.add(
-                        'hidden'
-                    );
-
-                }, 150);
-
+                dropdown.classList.remove('opacity-100', 'scale-100');
+                dropdown.classList.add('opacity-0', 'scale-95');
+                chevron.classList.remove('rotate-180');
+                setTimeout(() => dropdown.classList.add('hidden'), 150);
             }
-
         }
 
+        document.addEventListener('click', function (event) {
+            const profileMenu = document.getElementById('profile-menu-button');
+            const dropdown = document.getElementById('profile-dropdown');
+            const chevron = document.getElementById('profile-chevron');
 
-        document.addEventListener(
-            'click',
-            function (event) {
-
-                const profileMenu =
-                    document.getElementById(
-                        'profile-menu-button'
-                    );
-
-                const dropdown =
-                    document.getElementById(
-                        'profile-dropdown'
-                    );
-
-                const chevron =
-                    document.getElementById(
-                        'profile-chevron'
-                    );
-
-
-                if (
-                    profileMenu &&
-                    !profileMenu.contains(
-                        event.target
-                    ) &&
-                    !dropdown.contains(
-                        event.target
-                    )
-                ) {
-
-                    if (
-                        !dropdown.classList.contains(
-                            'hidden'
-                        )
-                    ) {
-
-                        dropdown.classList.remove(
-                            'opacity-100',
-                            'scale-100'
-                        );
-
-                        dropdown.classList.add(
-                            'opacity-0',
-                            'scale-95'
-                        );
-
-                        chevron.classList.remove(
-                            'rotate-180'
-                        );
-
-                        setTimeout(() => {
-
-                            dropdown.classList.add(
-                                'hidden'
-                            );
-
-                        }, 150);
-
-                    }
-
+            if (profileMenu && !profileMenu.contains(event.target) && !dropdown.contains(event.target)) {
+                if (!dropdown.classList.contains('hidden')) {
+                    dropdown.classList.remove('opacity-100', 'scale-100');
+                    dropdown.classList.add('opacity-0', 'scale-95');
+                    chevron.classList.remove('rotate-180');
+                    setTimeout(() => dropdown.classList.add('hidden'), 150);
                 }
-
             }
-        );
-
+        });
     </script>
-
-
-    {% block extra_js %}
-    {% endblock %}
-
+    {% block extra_js %}{% endblock %}
 </body>
 
 </html>

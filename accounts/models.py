@@ -47,6 +47,33 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
+    # Properties
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def initials(self):
+        if self.first_name and self.last_name:
+            return (
+                f"{self.first_name[0]}{self.last_name[0]}"
+            ).upper()
+
+        if self.first_name:
+            return self.first_name[:2].upper()
+
+        if self.last_name:
+            return self.last_name[:2].upper()
+
+        return self.email[:2].upper()
+
+    @property
+    def profile_image_url(self):
+        if self.profile_image:
+            return self.profile_image.url
+
+        return None
+
     class Meta:
         ordering = ["-date_joined"]
         verbose_name = "User"
