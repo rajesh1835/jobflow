@@ -1,0 +1,530 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full overflow-x-hidden">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Create Account - JobFlow</title>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Theme -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+
+                    colors: {
+                        brand: {
+                            DEFAULT: '#4F46E5',
+                            hover: '#4338CA',
+                        },
+
+                        accent: '#F97316',
+                        surface: '#F8FAFC',
+                        card: '#FFFFFF',
+                        heading: '#111827',
+                        subtext: '#64748B',
+                        borderline: '#E2E8F0',
+                    },
+
+                    backgroundImage: {
+                        'dot-mesh':
+                            "url(\"data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='1' fill='%2394A3B8' opacity='0.35'/%3E%3C/svg%3E\")",
+                    },
+
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {
+                                opacity: '0'
+                            },
+                            '100%': {
+                                opacity: '1'
+                            },
+                        },
+
+                        slideUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(16px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            },
+                        },
+
+                        pulseSlow: {
+                            '0%, 100%': {
+                                transform: 'scale(1)',
+                                opacity: '0.6'
+                            },
+                            '50%': {
+                                transform: 'scale(1.15)',
+                                opacity: '0.85'
+                            },
+                        },
+                    },
+
+                    animation: {
+                        'fade-in':
+                            'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+
+                        'slide-up':
+                            'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+
+                        'pulse-slow':
+                            'pulseSlow 8s ease-in-out infinite',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+
+<body class="min-h-screen w-screen bg-surface font-sans text-heading antialiased
+         relative opacity-0 animate-fade-in flex flex-col justify-between
+         overflow-x-hidden overflow-y-auto">
+
+    <!-- BACKGROUND -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+
+        <div class="absolute -top-32 -left-32 w-[550px] h-[550px]
+             bg-brand/15 rounded-full blur-[120px]
+             animate-pulse-slow">
+        </div>
+
+        <div class="absolute -bottom-40 -right-40 w-[600px] h-[600px]
+             bg-indigo-200/40 rounded-full blur-[140px]">
+        </div>
+
+        <div class="absolute top-1/2 left-1/2
+             -translate-x-1/2 -translate-y-1/2
+             w-[800px] h-[800px]
+             bg-brand/5 rounded-full blur-[100px]">
+        </div>
+
+        <div class="absolute inset-0 bg-dot-mesh
+             [mask-image:radial-gradient(ellipse_75%_75%_at_50%_50%,#000_50%,transparent_100%)]
+             opacity-80">
+        </div>
+
+    </div>
+
+
+    <!-- MAIN -->
+    <main class="relative z-10 w-full max-w-[1200px] mx-auto
+           px-4 py-4 sm:px-6 lg:px-8
+           flex-1 flex items-center justify-center">
+
+        <div class="w-full flex flex-col items-center justify-center gap-6
+             lg:flex-row lg:justify-between lg:gap-16 my-auto">
+
+            <!-- LEFT SIDE -->
+            <section class="w-full flex flex-col justify-center items-center
+               max-w-[480px] lg:flex-1">
+
+                <!-- Illustration -->
+                <div class="w-full max-w-[420px] max-h-[380px]
+            flex items-center justify-center mb-6">
+
+                    <img src="{% static 'images/register.png' %}" alt="JobFlow Illustration" class="w-full h-auto max-h-[360px]
+               object-contain drop-shadow-2xl">
+
+                </div>
+
+
+                <!-- Heading -->
+                <div class="space-y-2 text-center max-w-[400px]">
+
+                    <h2 class="text-2xl font-bold tracking-tight
+                   text-heading leading-tight">
+                        Start Your Journey Today
+                    </h2>
+
+                    <p class="text-xs text-subtext
+                   leading-relaxed italic">
+                        "Every application brings you closer to your dream role."
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- RIGHT SIDE -->
+            <section class="w-full lg:w-[500px]
+               flex justify-center items-center">
+
+                <!-- CARD -->
+                <div class="w-full max-w-[500px] p-5 sm:p-6
+                 bg-card/85 backdrop-blur-xl
+                 rounded-2xl border border-white/80
+                 shadow-2xl shadow-indigo-950/5
+                 animate-slide-up">
+
+                    <!-- HEADER -->
+                    <header class="mb-3">
+
+                        <div class="flex items-center justify-between">
+
+                            <h1 class="text-2xl font-bold
+                       text-heading tracking-tight">
+                                Create Account
+                            </h1>
+
+                            <a href="/" class="group shrink-0">
+                                <img src="{% static 'images/jf_logo.png' %}" alt="JobFlow Logo"
+                                    class="h-16 w-auto transition-transform duration-300 group-hover:scale-105">
+                            </a>
+
+                        </div>
+
+                        <p class="mt-1.5 text-xs text-subtext">
+                            Join JobFlow and organize your job search efficiently
+                        </p>
+
+                    </header>
+
+
+                    <!-- GOOGLE BUTTON -->
+                    <button type="button" disabled class="w-full h-11 mb-5
+                   flex items-center justify-center gap-3
+                   bg-white/90 text-heading text-sm font-medium
+                   rounded-xl border border-borderline/80
+                   shadow-sm opacity-60 cursor-not-allowed">
+
+                        <svg class="w-4 h-4" viewBox="0 0 24 24">
+
+                            <path fill="#4285F4"
+                                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z" />
+
+                            <path fill="#34A853"
+                                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.37 7.36 24 12 24z" />
+
+                            <path fill="#FBBC05"
+                                d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.98 0 12s.45 3.85 1.24 5.42l4.04-3.15z" />
+
+                            <path fill="#EA4335"
+                                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.63 1.24 6.58l4.04 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+
+                        </svg>
+
+                        <span>Continue with Google</span>
+
+                    </button>
+
+
+                    <!-- DIVIDER -->
+                    <div class="relative flex items-center justify-center my-3">
+
+                        <div class="w-full border-t border-borderline"></div>
+
+                        <span class="absolute bg-white/90 backdrop-blur-md
+                     px-3 text-[10px] uppercase
+                     tracking-wider font-semibold
+                     text-subtext rounded-full">
+                            Or email
+                        </span>
+
+                    </div>
+
+
+                    <!-- FORM -->
+                    <form method="post" class="space-y-1.5">
+
+                        {% csrf_token %}
+
+
+                        <!-- NON FIELD ERRORS -->
+                        {% if form.non_field_errors %}
+
+                        <div class="mb-3 p-3 rounded-xl
+                       bg-red-50 border border-red-200
+                       text-red-600 text-xs">
+
+                            {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                            {% endfor %}
+
+                        </div>
+
+                        {% endif %}
+
+
+                        <!-- FIRST + LAST NAME -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                            <div class="space-y-1">
+
+                                <label for="{{ form.first_name.id_for_label }}"
+                                    class="text-xs font-semibold text-heading">
+                                    First Name
+                                </label>
+
+                                <input type="text" name="{{ form.first_name.html_name }}"
+                                    id="{{ form.first_name.id_for_label }}"
+                                    value="{{ form.first_name.value|default:'' }}" placeholder="John" class="w-full h-9 px-3 text-xs
+                         rounded-xl border border-borderline
+                         bg-white/80 outline-none transition
+                         focus:border-brand
+                         focus:ring-4 focus:ring-brand/10
+                         focus:bg-white
+                         placeholder:text-slate-400">
+
+                                {% for error in form.first_name.errors %}
+                                <p class="text-[10px] text-red-500">
+                                    {{ error }}
+                                </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div class="space-y-1">
+
+                                <label for="{{ form.last_name.id_for_label }}"
+                                    class="text-xs font-semibold text-heading">
+                                    Last Name
+                                </label>
+
+                                <input type="text" name="{{ form.last_name.html_name }}"
+                                    id="{{ form.last_name.id_for_label }}" value="{{ form.last_name.value|default:'' }}"
+                                    placeholder="Doe" class="w-full h-9 px-3 text-xs
+                         rounded-xl border border-borderline
+                         bg-white/80 outline-none transition
+                         focus:border-brand
+                         focus:ring-4 focus:ring-brand/10
+                         focus:bg-white
+                         placeholder:text-slate-400">
+
+                                {% for error in form.last_name.errors %}
+                                <p class="text-[10px] text-red-500">
+                                    {{ error }}
+                                </p>
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- USERNAME + PHONE -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                            <div class="space-y-1">
+
+                                <label for="{{ form.username.id_for_label }}"
+                                    class="text-xs font-semibold text-heading">
+                                    Username
+                                </label>
+
+                                <input type="text" name="{{ form.username.html_name }}"
+                                    id="{{ form.username.id_for_label }}" value="{{ form.username.value|default:'' }}"
+                                    placeholder="johndoe" class="w-full h-9 px-3 text-xs
+                         rounded-xl border border-borderline
+                         bg-white/80 outline-none transition
+                         focus:border-brand
+                         focus:ring-4 focus:ring-brand/10
+                         focus:bg-white
+                         placeholder:text-slate-400">
+
+                                {% for error in form.username.errors %}
+                                <p class="text-[10px] text-red-500">
+                                    {{ error }}
+                                </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div class="space-y-1">
+
+                                <label for="{{ form.phone.id_for_label }}" class="text-xs font-semibold text-heading">
+                                    Phone Number
+                                </label>
+
+                                <input type="tel" name="{{ form.phone.html_name }}" id="{{ form.phone.id_for_label }}"
+                                    value="{{ form.phone.value|default:'' }}" placeholder="+91 xxxxx xxxxx" class="w-full h-9 px-3 text-xs
+                         rounded-xl border border-borderline
+                         bg-white/80 outline-none transition
+                         focus:border-brand
+                         focus:ring-4 focus:ring-brand/10
+                         focus:bg-white
+                         placeholder:text-slate-400">
+
+                                {% for error in form.phone.errors %}
+                                <p class="text-[10px] text-red-500">
+                                    {{ error }}
+                                </p>
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+                        <div class="space-y-1">
+
+                            <label for="{{ form.email.id_for_label }}" class="text-xs font-semibold text-heading">
+                                Email Address
+                            </label>
+
+                            <input type="email" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}"
+                                value="{{ form.email.value|default:'' }}" placeholder="john@company.com" required class="w-full h-9 px-3.5 text-xs
+                       rounded-xl border border-borderline
+                       bg-white/80 outline-none transition
+                       focus:border-brand
+                       focus:ring-4 focus:ring-brand/10
+                       focus:bg-white
+                       placeholder:text-slate-400">
+
+                            {% for error in form.email.errors %}
+                            <p class="text-[10px] text-red-500">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+
+                        </div>
+
+
+                        <!-- PASSWORDS -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                            <div class="space-y-1">
+
+                                <label for="{{ form.password1.id_for_label }}"
+                                    class="text-xs font-semibold text-heading">
+                                    Password
+                                </label>
+
+                                <input type="password" name="{{ form.password1.html_name }}"
+                                    id="{{ form.password1.id_for_label }}" placeholder="••••••••" required class="w-full h-9 px-3 text-xs
+                         rounded-xl border border-borderline
+                         bg-white/80 outline-none transition
+                         focus:border-brand
+                         focus:ring-4 focus:ring-brand/10
+                         focus:bg-white
+                         placeholder:text-slate-400">
+
+                                {% for error in form.password1.errors %}
+                                <p class="text-[10px] text-red-500">
+                                    {{ error }}
+                                </p>
+                                {% endfor %}
+
+                            </div>
+
+
+                            <div class="space-y-1">
+
+                                <label for="{{ form.password2.id_for_label }}"
+                                    class="text-xs font-semibold text-heading">
+                                    Confirm Password
+                                </label>
+
+                                <input type="password" name="{{ form.password2.html_name }}"
+                                    id="{{ form.password2.id_for_label }}" placeholder="••••••••" required class="w-full h-9 px-3 text-xs
+                         rounded-xl border border-borderline
+                         bg-white/80 outline-none transition
+                         focus:border-brand
+                         focus:ring-4 focus:ring-brand/10
+                         focus:bg-white
+                         placeholder:text-slate-400">
+
+                                {% for error in form.password2.errors %}
+                                <p class="text-[10px] text-red-500">
+                                    {{ error }}
+                                </p>
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- TERMS -->
+                        <div class="pt-0.5">
+
+                            <label class="flex items-start gap-2.5
+                       cursor-pointer select-none">
+
+                                <input type="checkbox" id="terms" required class="mt-0.5 w-4 h-4 rounded
+                         border-borderline
+                         text-brand focus:ring-brand/20
+                         accent-brand">
+
+                                <span class="text-[11px] text-subtext
+                         leading-tight">
+                                    I agree to the
+                                    <a href="#" class="font-semibold text-brand hover:underline">
+                                        Terms of Service
+                                    </a>
+                                    and
+                                    <a href="#" class="font-semibold text-brand hover:underline">
+                                        Privacy Policy
+                                    </a>
+                                </span>
+
+                            </label>
+
+                        </div>
+
+
+                        <!-- SUBMIT -->
+                        <button type="submit" class="w-full h-10 mt-1
+                     bg-brand hover:bg-brand-hover
+                     text-white text-xs sm:text-sm
+                     font-semibold rounded-xl
+                     shadow-lg shadow-brand/25
+                     transition duration-150
+                     active:scale-[0.99]
+                     focus:outline-none
+                     focus:ring-4 focus:ring-brand/20">
+                            Create Account
+                        </button>
+
+                    </form>
+
+
+                    <!-- LOGIN -->
+                    <div class="mt-4 text-center">
+
+                        <p class="text-xs text-subtext">
+
+                            Already have an account?
+
+                            <a class="text-brand font-semibold
+                       hover:underline ml-0.5" href="{% url 'login' %}">
+                                Login
+                            </a>
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>
