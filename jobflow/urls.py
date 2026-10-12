@@ -22,4 +22,5 @@ urlpatterns = [
     path("jf/v1/accounts/", include("accounts.urls")),
     path("", include("core.urls")),
     path("jf/v1/dashboard/", include("dashboard.urls")),
+    path("jf/v1/companies/", include("companies.urls")),
 ]

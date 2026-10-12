@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" type="image/png" href="{% static 'images/fav.png' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -41,37 +42,66 @@
             </div>
 
             <!-- Primary Navigation Links -->
+
             <nav class="space-y-1">
-                <a href="{% url 'dashboard' %}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-semibold rounded-2xl bg-slate-950 text-white shadow-xs">
+
+                <!-- Dashboard -->
+                <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                    {% if request.resolver_match.url_name == 'dashboard' %}
+                        bg-slate-950 text-white shadow-xs
+                    {% else %}
+                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                    {% endif %}">
                     <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
                     <span>Dashboard</span>
                 </a>
 
-                <a href="{% url 'applications' %}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
-                    <i data-lucide="file-text" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                <!-- Applications -->
+                <a href="{% url 'applications' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                    {% if request.resolver_match.namespace == 'applications' or request.resolver_match.url_name == 'applications' %}
+                        bg-slate-950 text-white shadow-xs
+                    {% else %}
+                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                    {% endif %}">
+                    <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
                     <span>Applications</span>
                 </a>
 
-                <a href="{% url 'companies' %}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
-                    <i data-lucide="building-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                <!-- Companies -->
+                <a href="{% url 'companies:list' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                    {% if request.resolver_match.namespace == 'companies' %}
+                        bg-slate-950 text-white shadow-xs
+                    {% else %}
+                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                    {% endif %}">
+                    <i data-lucide="building-2" class="w-4 h-4 shrink-0"></i>
                     <span>Companies</span>
                 </a>
 
-                <a href="{% url 'interviews' %}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
-                    <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                <!-- Interviews -->
+                <a href="{% url 'interviews' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                    {% if request.resolver_match.namespace == 'interviews' or request.resolver_match.url_name == 'interviews' %}
+                        bg-slate-950 text-white shadow-xs
+                    {% else %}
+                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                    {% endif %}">
+                    <i data-lucide="calendar" class="w-4 h-4 shrink-0"></i>
                     <span>Interviews</span>
                 </a>
 
-                <a href="{% url 'analytics' %}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
-                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                <!-- Analytics -->
+                <a href="{% url 'analytics' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                    {% if request.resolver_match.namespace == 'analytics' or request.resolver_match.url_name == 'analytics' %}
+                        bg-slate-950 text-white shadow-xs
+                    {% else %}
+                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                    {% endif %}">
+                    <i data-lucide="bar-chart-2" class="w-4 h-4 shrink-0"></i>
                     <span>Analytics</span>
                 </a>
+
             </nav>
+
         </div>
 
         <!-- Sidebar Bottom Footer -->
@@ -92,14 +122,16 @@
     <!-- CONTENT WRAPPER -->
     <div class="lg:pl-60 flex flex-col flex-1 min-h-screen">
 
-        <!-- MINIMAL TOP NAVIGATION (No Breadcrumbs) -->
+        <!-- MINIMAL TOP NAVIGATION  -->
         <header
-            class="sticky top-0 z-30 h-16 bg-[#f8f9fc]/80 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between gap-4">
+            class="sticky top-5 z-30 h-16 bg-[#f8f9fc]/80 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between gap-4">
 
             <div class="flex items-center gap-3 flex-1">
                 <button onclick="toggleSidebar()" class="p-2 -ml-2 rounded-xl text-slate-600 hover:bg-white lg:hidden">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
+
+                {% block page_title %}{% endblock %}
 
                 <!-- Search Pill Input -->
                 <div class="relative w-full max-w-xs md:max-w-sm">
