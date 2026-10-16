@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "core",
     "dashboard",
     "companies",
+    "applications",
 ]
 
 MIDDLEWARE = [

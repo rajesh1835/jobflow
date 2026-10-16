@@ -23,4 +23,5 @@ urlpatterns = [
     path("", include("core.urls")),
     path("jf/v1/dashboard/", include("dashboard.urls")),
     path("jf/v1/companies/", include("companies.urls")),
+    path("jf/v1/applications/", include("applications.urls")),
 ]
