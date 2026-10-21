@@ -56,17 +56,6 @@
                     <span>Dashboard</span>
                 </a>
 
-                <!-- Applications -->
-                <a href="{% url 'applications' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
-                    {% if request.resolver_match.namespace == 'applications' or request.resolver_match.url_name == 'applications' %}
-                        bg-slate-950 text-white shadow-xs
-                    {% else %}
-                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
-                    {% endif %}">
-                    <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
-                    <span>Applications</span>
-                </a>
-
                 <!-- Companies -->
                 <a href="{% url 'companies:list' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
                     {% if request.resolver_match.namespace == 'companies' %}
@@ -76,6 +65,17 @@
                     {% endif %}">
                     <i data-lucide="building-2" class="w-4 h-4 shrink-0"></i>
                     <span>Companies</span>
+                </a>
+
+                <!-- Applications -->
+                <a href="{% url 'applications:list' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                    {% if request.resolver_match.namespace == 'applications' or request.resolver_match.url_name == 'applications' %}
+                        bg-slate-950 text-white shadow-xs
+                    {% else %}
+                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                    {% endif %}">
+                    <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
+                    <span>Applications</span>
                 </a>
 
                 <!-- Interviews -->

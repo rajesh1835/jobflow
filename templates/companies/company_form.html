@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
 {% block title %}{{ page_title }} | JobFlow{% endblock %}
-{% block page_title %}<span class="text-sm font-semibold text-slate-800 hidden sm:inline-block">{{ page_title }}</span>{% endblock %}
+{% block page_title %}<span class="text-sm font-semibold text-slate-800 hidden sm:inline-block">{{ page_title
+  }}</span>{% endblock %}
 
 {% block content %}
 <div class="mx-auto max-w-2xl space-y-5">
 
   <!-- Back Link -->
-  <a
-    href="{% url 'companies:list' %}"
-    class="inline-flex items-center gap-2 text-xs text-slate-500 transition hover:text-slate-900"
-  >
+  <a href="{% url 'companies:list' %}"
+    class="inline-flex items-center gap-2 text-xs text-slate-500 transition hover:text-slate-900">
     <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
     Back to companies
   </a>
@@ -26,41 +25,37 @@
     {% csrf_token %}
 
     {% if form.non_field_errors %}
-      <div class="mb-4 rounded-xl bg-red-50 p-3 text-xs text-red-700">
-        {{ form.non_field_errors }}
-      </div>
+    <div class="mb-4 rounded-xl bg-red-50 p-3 text-xs text-red-700">
+      {{ form.non_field_errors }}
+    </div>
     {% endif %}
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {% for field in form %}
-        <div class="{% if field.name == 'description' %}sm:col-span-2{% endif %}">
-          <label for="{{ field.id_for_label }}" class="mb-1.5 block text-xs font-medium text-slate-700">
-            {{ field.label }}
-            {% if field.field.required %}<span class="ml-1 text-red-500">*</span>{% endif %}
-          </label>
-          {{ field }}
-          {% if field.help_text %}
-            <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
-          {% endif %}
-          {% for error in field.errors %}
-            <p class="mt-1 text-xs text-red-600">{{ error }}</p>
-          {% endfor %}
-        </div>
+      <div class="{% if field.name == 'description' %}sm:col-span-2{% endif %}">
+        <label for="{{ field.id_for_label }}" class="mb-1.5 block text-xs font-medium text-slate-700">
+          {{ field.label }}
+          {% if field.field.required %}<span class="ml-1 text-red-500">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% if field.help_text %}
+        <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
+        {% endif %}
+        {% for error in field.errors %}
+        <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+        {% endfor %}
+      </div>
       {% endfor %}
     </div>
 
     <!-- Actions -->
     <div class="mt-6 flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
-      <a
-        href="{% url 'companies:list' %}"
-        class="inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-      >
+      <a href="{% url 'companies:list' %}"
+        class="inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
         Cancel
       </a>
-      <button
-        type="submit"
-        class="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800"
-      >
+      <button type="submit"
+        class="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800">
         <i data-lucide="check" class="h-3.5 w-3.5"></i>
         {{ submit_label }}
       </button>

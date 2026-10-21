@@ -1,0 +1,738 @@
+{% extends "base.html" %}
+
+{% block title %}Applications | JobFlow{% endblock %}
+
+{% block page_title %}
+<span class="text-sm font-semibold text-slate-800 hidden sm:inline-block">
+    Applications
+</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header & Actions -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
+                Applications
+            </h1>
+            <p class="mt-1 text-xs text-slate-500">
+                Track your job applications and their progress.
+            </p>
+        </div>
+
+        <button type="button" data-open-application-modal
+            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-slate-800">
+            <i data-lucide="plus" class="h-3.5 w-3.5"></i>
+            Add application
+        </button>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="space-y-2">
+        {% for message in messages %}
+        <div class="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-xs font-medium text-green-700">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Search -->
+    <form method="get" class="max-w-md">
+        <div class="relative">
+            <i data-lucide="search" class="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"></i>
+
+            <input type="search" name="q" value="{{ query }}" placeholder="Search applications..."
+                class="w-full rounded-full border border-slate-200/80 bg-white py-2 pl-9 pr-4 text-xs text-slate-800 shadow-2xs transition placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-slate-900/10" />
+        </div>
+    </form>
+
+    <!-- Application Cards -->
+    {% if applications %}
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+        {% for application in applications %}
+        <article
+            class="group flex flex-col rounded-2xl border border-slate-200/80 bg-white shadow-xs transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+
+            <!-- Card Header -->
+            <div class="flex items-start justify-between gap-3 p-5">
+                <div class="flex min-w-0 items-center gap-3">
+                    <span
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-sm font-bold text-white shadow-xs">
+                        {{ application.company.name|first|upper }}
+                    </span>
+
+                    <div class="min-w-0">
+                        <h2 class="truncate text-sm font-semibold text-slate-900">
+                            {{ application.job_title }}
+                        </h2>
+
+                        <p class="mt-0.5 truncate text-xs text-slate-500">
+                            {{ application.company.name }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div class="flex shrink-0 items-center gap-1">
+
+                    <!-- View -->
+                    <button type="button" data-view-application data-application-id="{{ application.pk }}"
+                        aria-label="View {{ application.job_title }}" title="View application"
+                        class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                        <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+                    </button>
+
+                    <!-- Edit -->
+                    <button type="button" data-edit-application data-application-id="{{ application.pk }}"
+                        aria-label="Edit {{ application.job_title }}" title="Edit application"
+                        class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                        <i data-lucide="pencil" class="h-3.5 w-3.5"></i>
+                    </button>
+
+                    <!-- Delete -->
+                    <button type="button" data-open-delete
+                        data-delete-url="{% url 'applications:delete' application.pk %}"
+                        data-application-name="{{ application.job_title|escape }}"
+                        aria-label="Delete {{ application.job_title }}" title="Delete application"
+                        class="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-500">
+                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="flex items-center justify-between gap-2 border-t border-slate-100 px-5 py-3">
+                <span class="text-xs text-slate-400">Status</span>
+
+                <span
+                    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium {{ application.status_badge_class }}">
+                    {{ application.get_status_display }}
+                </span>
+            </div>
+
+            <!-- Meta -->
+            <div class="flex flex-col gap-2 border-t border-slate-100 px-5 py-3">
+
+                {% if application.location %}
+                <p class="flex items-center gap-2 text-xs text-slate-500">
+                    <i data-lucide="map-pin" class="h-3.5 w-3.5 shrink-0 text-slate-400"></i>
+                    {{ application.location }}
+                </p>
+                {% endif %}
+
+                {% if application.applied_date %}
+                <p class="flex items-center gap-2 text-xs text-slate-500">
+                    <i data-lucide="calendar" class="h-3.5 w-3.5 shrink-0 text-slate-400"></i>
+                    {{ application.applied_date|date:"M d, Y" }}
+                </p>
+                {% endif %}
+
+                {% if application.job_url %}
+                <a href="{{ application.job_url }}" target="_blank" rel="noopener noreferrer"
+                    class="flex items-center gap-2 truncate text-xs text-slate-500 hover:text-slate-800">
+                    <i data-lucide="external-link" class="h-3.5 w-3.5 shrink-0 text-slate-400"></i>
+                    <span class="truncate">View job posting</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-auto flex items-center justify-between border-t border-slate-100 px-5 py-3">
+                <span class="text-xs text-slate-400">
+                    Updated {{ application.updated_at|date:"M d, Y" }}
+                </span>
+
+                <button type="button" data-view-application data-application-id="{{ application.pk }}"
+                    class="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 transition hover:text-slate-950">
+                    View details
+                    <i data-lucide="arrow-up-right" class="h-3.5 w-3.5"></i>
+                </button>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% else %}
+
+    <!-- Empty State -->
+    <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
+            <i data-lucide="file-text" class="h-7 w-7 text-slate-400"></i>
+        </div>
+
+        <h2 class="mt-4 text-sm font-semibold text-slate-900">
+            {% if query %}
+            No matching applications
+            {% else %}
+            No applications yet
+            {% endif %}
+        </h2>
+
+        <p class="mx-auto mt-2 max-w-sm text-xs text-slate-500">
+            {% if query %}
+            Try another search term or clear the filter.
+            {% else %}
+            Add your first job application to start tracking your progress.
+            {% endif %}
+        </p>
+
+        {% if query %}
+        <a href="{% url 'applications:list' %}"
+            class="mt-4 inline-block text-xs font-semibold text-slate-800 underline underline-offset-4">
+            Clear search
+        </a>
+        {% else %}
+        <button type="button" data-open-application-modal
+            class="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white hover:bg-slate-800">
+            <i data-lucide="plus" class="h-3.5 w-3.5"></i>
+            Add your first application
+        </button>
+        {% endif %}
+    </div>
+
+    {% endif %}
+</div>
+
+
+<!-- =========================================
+     Application Detail Modals
+========================================= -->
+{% for application in applications %}
+<div id="application-detail-{{ application.pk }}"
+    class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-[2px]"
+    role="dialog" aria-modal="true" aria-labelledby="application-detail-title-{{ application.pk }}"
+    data-application-detail-modal>
+
+    <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl">
+
+        <!-- Modal Header -->
+        <div
+            class="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-100 bg-white px-6 py-4">
+
+            <div class="flex items-center gap-3">
+                <span
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-sm font-bold text-white">
+                    {{ application.company.name|first|upper }}
+                </span>
+
+                <div>
+                    <h2 id="application-detail-title-{{ application.pk }}"
+                        class="text-base font-semibold text-slate-900">
+                        {{ application.job_title }}
+                    </h2>
+
+                    <p class="mt-0.5 text-xs text-slate-400">
+                        {{ application.company.name }}
+                    </p>
+                </div>
+            </div>
+
+            <button type="button" data-close-application-detail aria-label="Close"
+                class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="divide-y divide-slate-100 px-6 py-4">
+
+            <!-- Status -->
+            <div class="flex items-center justify-between gap-3 py-3">
+                <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                    Status
+                </p>
+
+                <span
+                    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium {{ application.status_badge_class }}">
+                    {{ application.get_status_display }}
+                </span>
+            </div>
+
+            <!-- Company -->
+            <div class="flex items-center gap-3 py-3">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                    <i data-lucide="building-2" class="h-3.5 w-3.5 text-slate-500"></i>
+                </span>
+
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Company
+                    </p>
+                    <p class="mt-0.5 text-sm text-slate-700">
+                        {{ application.company.name }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="flex items-center gap-3 py-3">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                    <i data-lucide="map-pin" class="h-3.5 w-3.5 text-slate-500"></i>
+                </span>
+
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Location
+                    </p>
+                    <p class="mt-0.5 text-sm text-slate-700">
+                        {% if application.location %}
+                        {{ application.location }}
+                        {% else %}
+                        Not provided
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Applied Date -->
+            <div class="flex items-center gap-3 py-3">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                    <i data-lucide="calendar" class="h-3.5 w-3.5 text-slate-500"></i>
+                </span>
+
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Applied date
+                    </p>
+                    <p class="mt-0.5 text-sm text-slate-700">
+                        {% if application.applied_date %}
+                        {{ application.applied_date|date:"M d, Y" }}
+                        {% else %}
+                        Not provided
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Job URL -->
+            <div class="flex items-center gap-3 py-3">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                    <i data-lucide="globe" class="h-3.5 w-3.5 text-slate-500"></i>
+                </span>
+
+                <div class="min-w-0">
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Job posting
+                    </p>
+
+                    {% if application.job_url %}
+                    <a href="{{ application.job_url }}" target="_blank" rel="noopener noreferrer"
+                        class="mt-0.5 inline-flex items-center gap-1 truncate text-sm text-slate-700 hover:underline">
+                        View job posting
+                        <i data-lucide="external-link" class="h-3 w-3 shrink-0"></i>
+                    </a>
+                    {% else %}
+                    <p class="mt-0.5 text-sm text-slate-400">
+                        Not provided
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="py-3">
+                <p class="mb-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+                    Notes
+                </p>
+
+                {% if application.notes %}
+                <p class="whitespace-pre-line text-sm leading-6 text-slate-600">
+                    {{ application.notes }}
+                </p>
+                {% else %}
+                <p class="text-sm text-slate-400">
+                    No notes added.
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Dates -->
+            <div class="py-3">
+                <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
+                    Last updated
+                </p>
+                <p class="mt-0.5 text-sm text-slate-700">
+                    {{ application.updated_at|date:"M d, Y" }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-between border-t border-slate-100 bg-slate-50/60 px-6 py-4">
+
+            <button type="button" data-open-delete data-delete-url="{% url 'applications:delete' application.pk %}"
+                data-application-name="{{ application.job_title|escape }}"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-700 transition">
+                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                Delete
+            </button>
+
+            <button type="button" data-edit-application data-application-id="{{ application.pk }}"
+                class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition">
+                <i data-lucide="pencil" class="h-3 w-3"></i>
+                Edit application
+            </button>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
+<!-- =========================================
+     Create / Edit Application Modal
+========================================= -->
+<div id="application-modal"
+    class="{% if not modal_open %}hidden {% endif %}fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-[2px]"
+    role="dialog" aria-modal="true" aria-labelledby="application-modal-title">
+
+    <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl">
+
+        <!-- Modal Header -->
+        <div
+            class="sticky top-0 z-10 flex items-start justify-between border-b border-slate-100 bg-white px-5 py-4 sm:px-6">
+            <div>
+                <h2 id="application-modal-title" class="text-base font-semibold text-slate-950">
+                    {% if editing_application %}
+                    Edit application
+                    {% else %}
+                    Add application
+                    {% endif %}
+                </h2>
+
+                <p class="mt-0.5 text-xs text-slate-500">
+                    Keep your job application details organized.
+                </p>
+            </div>
+
+            <button type="button" data-close-application-modal aria-label="Close dialog"
+                class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition">
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form method="post" action="{% url 'applications:list' %}{% if query %}?q={{ query|urlencode }}{% endif %}"
+            class="p-5 sm:p-6">
+
+            {% csrf_token %}
+
+            <input type="hidden" name="application_id"
+                value="{% if editing_application %}{{ editing_application.pk }}{% endif %}">
+
+            {% if application_form.non_field_errors %}
+            <div class="mb-4 rounded-xl border border-red-100 bg-red-50 p-3 text-xs text-red-700">
+                {% for error in application_form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                {% for field in application_form %}
+                <div class="{% if field.name == 'notes' %}sm:col-span-2{% endif %}">
+
+                    <label for="{{ field.id_for_label }}" class="mb-1.5 block text-xs font-medium text-slate-700">
+                        {{ field.label }}
+
+                        {% if field.field.required %}
+                        <span class="ml-1 text-red-500">*</span>
+                        {% endif %}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                    <p class="mt-1 text-xs text-slate-500">
+                        {{ field.help_text }}
+                    </p>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                    <p class="mt-1 text-xs text-red-600">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="mt-6 flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+
+                <button type="button" data-close-application-modal
+                    class="inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800">
+                    <i data-lucide="check" class="h-3.5 w-3.5"></i>
+
+                    {% if editing_application %}
+                    Save changes
+                    {% else %}
+                    Add application
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- =========================================
+     Delete Confirmation Modal
+========================================= -->
+<div id="delete-application-modal"
+    class="hidden fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-[2px]"
+    role="dialog" aria-modal="true" aria-labelledby="delete-application-title">
+
+    <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
+
+        <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50">
+                <i data-lucide="trash-2" class="h-5 w-5 text-red-600"></i>
+            </div>
+
+            <h2 id="delete-application-title" class="text-base font-semibold text-slate-900">
+                Delete application?
+            </h2>
+        </div>
+
+        <p class="mt-3 text-sm leading-5 text-slate-500">
+            You're about to delete
+            <span id="delete-application-name" class="font-semibold text-slate-700"></span>.
+            This action cannot be undone.
+        </p>
+
+        <form id="delete-application-form" method="post" class="mt-6 flex justify-end gap-2">
+
+            {% csrf_token %}
+
+            <button type="button" data-close-delete-modal
+                class="rounded-full border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                Cancel
+            </button>
+
+            <button type="submit"
+                class="rounded-full bg-red-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-red-700">
+                Delete application
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<!-- =========================================
+     Modal JavaScript
+========================================= -->
+<script>
+    (() => {
+        const applicationModal = document.getElementById("application-modal");
+        const deleteModal = document.getElementById("delete-application-modal");
+        const deleteForm = document.getElementById("delete-application-form");
+        const deleteName = document.getElementById("delete-application-name");
+
+        let activeDetailModal = null;
+
+        /* Body scroll lock */
+        const lockBody = () => {
+            document.body.classList.add("overflow-hidden");
+        };
+
+        const unlockBody = () => {
+            const applicationOpen = !applicationModal.classList.contains("hidden");
+            const deleteOpen = !deleteModal.classList.contains("hidden");
+            const detailOpen = activeDetailModal !== null;
+
+            if (!applicationOpen && !deleteOpen && !detailOpen) {
+                document.body.classList.remove("overflow-hidden");
+            }
+        };
+
+        /* Create / Edit */
+        const openApplication = () => {
+            applicationModal.classList.remove("hidden");
+            lockBody();
+
+            const firstInput = applicationModal.querySelector(
+                'input:not([type="hidden"]), select, textarea'
+            );
+
+            if (firstInput) {
+                firstInput.focus();
+            }
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        };
+
+        const closeApplication = () => {
+            applicationModal.classList.add("hidden");
+
+            const url = new URL(window.location.href);
+            url.searchParams.delete("edit");
+
+            window.history.replaceState(
+                {},
+                "",
+                url.pathname + url.search + url.hash
+            );
+
+            unlockBody();
+        };
+
+        document.querySelectorAll("[data-open-application-modal]")
+            .forEach(button => {
+                button.addEventListener("click", openApplication);
+            });
+
+        document.querySelectorAll("[data-close-application-modal]")
+            .forEach(button => {
+                button.addEventListener("click", closeApplication);
+            });
+
+        applicationModal.addEventListener("click", event => {
+            if (event.target === applicationModal) {
+                closeApplication();
+            }
+        });
+
+        /* View Details */
+        const openDetail = id => {
+            const modal = document.getElementById(
+                "application-detail-" + id
+            );
+
+            if (!modal) return;
+
+            if (activeDetailModal) {
+                activeDetailModal.classList.add("hidden");
+            }
+
+            activeDetailModal = modal;
+            modal.classList.remove("hidden");
+            lockBody();
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        };
+
+        const closeDetail = () => {
+            if (activeDetailModal) {
+                activeDetailModal.classList.add("hidden");
+                activeDetailModal = null;
+            }
+
+            unlockBody();
+        };
+
+        document.querySelectorAll("[data-view-application]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    openDetail(button.dataset.applicationId);
+                });
+            });
+
+        document.querySelectorAll("[data-application-detail-modal]")
+            .forEach(modal => {
+                modal.querySelector("[data-close-application-detail]")
+                    ?.addEventListener("click", closeDetail);
+
+                modal.addEventListener("click", event => {
+                    if (event.target === modal) {
+                        closeDetail();
+                    }
+                });
+            });
+
+        /* Edit */
+        document.querySelectorAll("[data-edit-application]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    const url = new URL(window.location.href);
+
+                    url.searchParams.set(
+                        "edit",
+                        button.dataset.applicationId
+                    );
+
+                    window.location.href = url.pathname + url.search;
+                });
+            });
+
+        /* Delete */
+        const openDelete = (url, name) => {
+            deleteForm.action = url;
+            deleteName.textContent = name;
+
+            deleteModal.classList.remove("hidden");
+            lockBody();
+        };
+
+        const closeDelete = () => {
+            deleteModal.classList.add("hidden");
+            unlockBody();
+        };
+
+        document.querySelectorAll("[data-open-delete]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+                    openDelete(
+                        button.dataset.deleteUrl,
+                        button.dataset.applicationName
+                    );
+                });
+            });
+
+        document.querySelectorAll("[data-close-delete-modal]")
+            .forEach(button => {
+                button.addEventListener("click", closeDelete);
+            });
+
+        deleteModal.addEventListener("click", event => {
+            if (event.target === deleteModal) {
+                closeDelete();
+            }
+        });
+
+        /* Escape key */
+        document.addEventListener("keydown", event => {
+            if (event.key !== "Escape") return;
+
+            if (!deleteModal.classList.contains("hidden")) {
+                closeDelete();
+                return;
+            }
+
+            if (activeDetailModal) {
+                closeDetail();
+                return;
+            }
+
+            if (!applicationModal.classList.contains("hidden")) {
+                closeApplication();
+            }
+        });
+
+        /* Automatically open after validation errors or ?edit=... */
+        {% if modal_open %}
+        openApplication();
+        {% endif %}
+
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    })();
+</script>
+{% endblock %}
