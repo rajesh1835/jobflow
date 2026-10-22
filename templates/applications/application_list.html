@@ -29,17 +29,6 @@
         </button>
     </div>
 
-    <!-- Messages -->
-    {% if messages %}
-    <div class="space-y-2">
-        {% for message in messages %}
-        <div class="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-xs font-medium text-green-700">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
     <!-- Search -->
     <form method="get" class="max-w-md">
         <div class="relative">
@@ -79,14 +68,6 @@
 
                 <!-- Card Actions -->
                 <div class="flex shrink-0 items-center gap-1">
-
-                    <!-- View -->
-                    <button type="button" data-view-application data-application-id="{{ application.pk }}"
-                        aria-label="View {{ application.job_title }}" title="View application"
-                        class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
-                        <i data-lucide="eye" class="h-3.5 w-3.5"></i>
-                    </button>
-
                     <!-- Edit -->
                     <button type="button" data-edit-application data-application-id="{{ application.pk }}"
                         aria-label="Edit {{ application.job_title }}" title="Edit application"
