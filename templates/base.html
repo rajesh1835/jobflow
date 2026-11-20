@@ -79,7 +79,7 @@
                 </a>
 
                 <!-- Interviews -->
-                <a href="{% url 'interviews' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                <a href="{% url 'interviews:list' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
                     {% if request.resolver_match.namespace == 'interviews' or request.resolver_match.url_name == 'interviews' %}
                         bg-slate-950 text-white shadow-xs
                     {% else %}
@@ -199,6 +199,29 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+    
+    {% if messages %}
+    <div id="toast-container"
+        class="fixed top-5 right-5 z-[9999] flex w-[calc(100%-2.5rem)] max-w-sm flex-col gap-3">
+
+        {% for message in messages %}
+        <div class="toast-message flex items-start gap-3 rounded-xl border border-green-200 bg-white p-4 text-sm text-slate-700 shadow-lg transition-all duration-300"
+            role="alert">
+
+            <i data-lucide="check-circle"
+            class="mt-0.5 h-5 w-5 shrink-0 text-green-600"></i>
+
+            <p class="flex-1">{{ message }}</p>
+
+            <button type="button"
+                class="toast-close rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Close notification">
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <script>
         lucide.createIcons();
@@ -253,6 +276,45 @@
             }
         });
     </script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toasts = document.querySelectorAll(".toast-message");
+
+            toasts.forEach(function (toast) {
+                let dismissed = false;
+
+                function dismissToast() {
+                    if (dismissed) return;
+                    dismissed = true;
+
+                    toast.classList.add("opacity-0", "translate-x-5");
+
+                    setTimeout(function () {
+                        toast.remove();
+
+                        const container = document.getElementById("toast-container");
+                        if (container && container.children.length === 0) {
+                            container.remove();
+                        }
+                    }, 300);
+                }
+
+                const closeButton = toast.querySelector(".toast-close");
+
+                if (closeButton) {
+                    closeButton.addEventListener("click", dismissToast);
+                }
+
+                setTimeout(dismissToast, 3000);
+            });
+
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 

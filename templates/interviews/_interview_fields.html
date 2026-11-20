@@ -1,0 +1,94 @@
+
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+
+    {% for field in form %}
+    <div class="{% if field.name == 'application' or field.name == 'notes' %}sm:col-span-2{% endif %}">
+
+        <label for="{{ prefix }}-{{ field.name }}"
+            class="mb-2 block text-sm font-semibold text-slate-700">
+            {{ field.label }}
+            {% if field.field.required %}
+                <span class="text-rose-500">*</span>
+            {% endif %}
+        </label>
+
+        {% if field.name == "application" %}
+            <select
+                name="{{ field.html_name }}"
+                id="{{ prefix }}-{{ field.name }}"
+                required
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5">
+
+                <option value="">Select a job application</option>
+
+                {% for application in field.field.queryset %}
+                    <option value="{{ application.pk }}"
+                        {% if field.value|stringformat:"s" == application.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ application.job_title }} at {{ application.company.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        {% elif field.name == "round_name" %}
+            <input
+                type="text"
+                name="{{ field.html_name }}"
+                id="{{ prefix }}-{{ field.name }}"
+                value="{{ field.value|default_if_none:'' }}"
+                placeholder="e.g. Technical Round"
+                maxlength="100"
+                required
+                class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5">
+
+        {% elif field.name == "scheduled_at" %}
+            <input
+                type="datetime-local"
+                name="{{ field.html_name }}"
+                id="{{ prefix }}-{{ field.name }}"
+                value="{{ field.value|default_if_none:'' }}"
+                required
+                class="w-full min-w-0 rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5">
+
+        {% elif field.name == "interview_type" %}
+            <select
+                name="{{ field.html_name }}"
+                id="{{ prefix }}-{{ field.name }}"
+                required
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5">
+
+                {% for value, label in field.field.choices %}
+                    <option value="{{ value }}"
+                        {% if field.value == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+
+        {% elif field.name == "meeting_link" %}
+            <input
+                type="url"
+                name="{{ field.html_name }}"
+                id="{{ prefix }}-{{ field.name }}"
+                value="{{ field.value|default_if_none:'' }}"
+                placeholder="https://..."
+                class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5">
+
+        {% elif field.name == "notes" %}
+            <textarea
+                name="{{ field.html_name }}"
+                id="{{ prefix }}-{{ field.name }}"
+                rows="3"
+                placeholder="Preparation notes or interview feedback"
+                class="w-full resize-y rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5">{{ field.value|default_if_none:'' }}</textarea>
+        {% endif %}
+
+        {% if field.errors %}
+            <p class="mt-1 text-xs text-rose-600">
+                {{ field.errors|join:", " }}
+            </p>
+        {% endif %}
+
+    </div>
+    {% endfor %}
+
+</div>
