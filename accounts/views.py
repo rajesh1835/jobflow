@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import UserRegistrationForm, UserLoginForm
 from django.contrib.auth import login, authenticate, logout
-
+from django.contrib.auth.decorators import login_required
 
 # User Registration
 def register(request):
@@ -63,6 +63,7 @@ def user_login(request):
 
 
 # User Logout
+@login_required
 def user_logout(request):
     logout(request)
     return redirect("home")

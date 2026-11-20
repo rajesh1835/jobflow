@@ -1,0 +1,772 @@
+
+{% extends "base.html" %}
+
+{% block title %}Interview Management{% endblock %}
+
+{% block page_title %}
+<span class="hidden text-sm font-semibold text-slate-800 sm:inline-block">
+    Interviews
+</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Page header -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">
+                Interviews
+            </h1>
+            <p class="mt-1 text-xs text-slate-500">
+                Track upcoming and completed interviews.
+            </p>
+        </div>
+
+        <button type="button" data-open-modal="create-interview-modal"
+            class="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-slate-800 sm:w-auto">
+            <i data-lucide="plus" class="h-3.5 w-3.5"></i>
+            Schedule Interview
+        </button>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+            <p class="text-xs text-slate-400">Upcoming Interviews</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900" id="upcoming-count">{{ upcoming_count|default:0 }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+            <p class="text-xs text-slate-400">Completed</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900" id="completed-count">{{ completed_count|default:0 }}</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+            <p class="text-xs text-slate-400">Cancelled</p>
+            <p class="mt-2 text-2xl font-bold text-slate-900" id="cancelled-count">{{ cancelled_count|default:0 }}</p>
+        </div>
+    </div>
+
+    <!-- Search and filter -->
+    <form method="get" class="flex min-w-0 flex-col gap-3 sm:max-w-2xl sm:flex-row">
+        <div class="relative min-w-0 flex-1">
+            <i data-lucide="search" class="absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"></i>
+            <input type="search" name="q" value="{{ query }}"
+                placeholder="Search interviews..."
+                class="w-full rounded-full border border-slate-200/80 bg-white py-2 pl-9 pr-4 text-xs text-slate-800 shadow-2xs transition placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-slate-900/10">
+        </div>
+        <select name="status"
+            class="rounded-full border border-slate-200/80 bg-white px-4 py-2 text-xs text-slate-800 shadow-2xs focus:outline-hidden focus:ring-2 focus:ring-slate-900/10">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+                {{ label }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit"
+            class="shrink-0 rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+            Apply
+        </button>
+    </form>
+
+    <!-- Mobile card list (visible on small screens only) -->
+    <div class="sm:hidden" id="interview-card-list">
+        {% for interview in interviews %}
+        <div id="interview-card-{{ interview.pk }}"
+            class="mb-3 rounded-2xl border border-slate-200 bg-white p-4">
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 truncate">{{ interview.round_name }}</p>
+                    <p class="mt-0.5 text-xs font-medium text-slate-700 truncate">{{ interview.application.company.name }}</p>
+                    <p class="mt-0.5 text-xs text-slate-500 truncate">{{ interview.application.job_title }}</p>
+                </div>
+                <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                    {{ interview.get_status_display }}
+                </span>
+            </div>
+            <div class="mt-3 flex items-center gap-4 text-xs text-slate-500">
+                <span class="flex items-center gap-1">
+                    <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                    {{ interview.scheduled_at|date:"d M Y" }}
+                </span>
+                <span class="flex items-center gap-1">
+                    <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                    {{ interview.scheduled_at|date:"h:i A" }}
+                </span>
+                <span>{{ interview.get_interview_type_display }}</span>
+            </div>
+            <div class="mt-3 flex justify-end gap-1 border-t border-slate-100 pt-3">
+                <button type="button" data-view-interview="{{ interview.pk }}"
+                    class="rounded-lg p-2 text-slate-500 hover:bg-slate-100" title="View">
+                    <i data-lucide="eye" class="h-4 w-4"></i>
+                </button>
+                <button type="button" data-edit-interview="{{ interview.pk }}"
+                    class="rounded-lg p-2 text-slate-500 hover:bg-slate-100" title="Edit">
+                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                </button>
+                <button type="button" data-delete-interview="{{ interview.pk }}"
+                    class="rounded-lg p-2 text-rose-500 hover:bg-rose-50" title="Delete">
+                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div id="empty-interviews-card" class="rounded-2xl border border-slate-200 bg-white px-5 py-14 text-center">
+            <i data-lucide="calendar-days" class="mx-auto h-8 w-8 text-slate-400"></i>
+            <p class="mt-3 text-sm font-semibold text-slate-900">No interviews yet</p>
+            <p class="mt-1 text-sm text-slate-500">Schedule an interview to see it here.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Desktop table (hidden on small screens) -->
+    <div class="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white sm:block">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[850px] text-left">
+                <thead class="bg-slate-50">
+                    <tr class="text-xs font-semibold uppercase text-slate-500">
+                        <th class="px-5 py-4">Interview</th>
+                        <th class="px-5 py-4">Company / Role</th>
+                        <th class="px-5 py-4">Date &amp; Time</th>
+                        <th class="px-5 py-4">Type</th>
+                        <th class="px-5 py-4">Status</th>
+                        <th class="px-5 py-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="interview-table-body" class="divide-y divide-slate-100">
+                    {% for interview in interviews %}
+                    <tr id="interview-row-{{ interview.pk }}">
+                        <td class="px-5 py-4">
+                            <p class="text-sm font-semibold text-slate-900">{{ interview.round_name }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="text-sm font-medium">{{ interview.application.company.name }}</p>
+                            <p class="mt-1 text-xs text-slate-500">{{ interview.application.job_title }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="text-sm">{{ interview.scheduled_at|date:"d M Y" }}</p>
+                            <p class="mt-1 text-xs text-slate-500">{{ interview.scheduled_at|date:"h:i A" }}</p>
+                        </td>
+                        <td class="px-5 py-4 text-sm">{{ interview.get_interview_type_display }}</td>
+                        <td class="px-5 py-4">
+                            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">
+                                {{ interview.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="flex justify-end gap-1">
+                                <button type="button" data-view-interview="{{ interview.pk }}"
+                                    class="rounded-lg p-2 text-slate-500 hover:bg-slate-100" title="View">
+                                    <i data-lucide="eye" class="h-4 w-4"></i>
+                                </button>
+                                <button type="button" data-edit-interview="{{ interview.pk }}"
+                                    class="rounded-lg p-2 text-slate-500 hover:bg-slate-100" title="Edit">
+                                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                                </button>
+                                <button type="button" data-delete-interview="{{ interview.pk }}"
+                                    class="rounded-lg p-2 text-rose-500 hover:bg-rose-50" title="Delete">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr id="empty-interviews-row">
+                        <td colspan="6" class="px-5 py-14 text-center">
+                            <i data-lucide="calendar-days" class="mx-auto h-8 w-8 text-slate-400"></i>
+                            <p class="mt-3 text-sm font-semibold text-slate-900">No interviews yet</p>
+                            <p class="mt-1 text-sm text-slate-500">Schedule an interview to see it here.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Create modal -->
+<div id="create-interview-modal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-slate-950/50 p-2 sm:p-4">
+    <div class="my-auto max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl sm:max-h-[90vh]">
+        <div class="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6">
+            <div>
+                <h3 class="text-lg font-bold">Schedule Interview</h3>
+                <p class="mt-1 text-sm text-slate-500">Enter the interview details.</p>
+            </div>
+            <button type="button" data-close-modal class="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+        </div>
+
+        <form id="create-interview-form" method="post" action="{% url 'interviews:create' %}" class="space-y-5 p-4 sm:p-6">
+            {% csrf_token %}
+            <div id="create-form-errors" class="hidden rounded-xl bg-rose-50 p-3 text-sm text-rose-700"></div>
+            {% include "interviews/_interview_fields.html" with form=form prefix="create" %}
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+                <button type="button" data-close-modal class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold sm:w-auto">Cancel</button>
+                <button type="submit" class="w-full rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white sm:w-auto">Schedule</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit modal -->
+<div id="edit-interview-modal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-slate-950/50 p-2 sm:p-4">
+    <div class="my-auto max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl sm:max-h-[90vh]">
+        <div class="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6">
+            <h3 class="text-lg font-bold">Edit Interview</h3>
+            <button type="button" data-close-modal class="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+        </div>
+
+        <form id="edit-interview-form" method="post" class="space-y-5 p-4 sm:p-6">
+            {% csrf_token %}
+            <div id="edit-form-errors" class="hidden rounded-xl bg-rose-50 p-3 text-sm text-rose-700"></div>
+            {% include "interviews/_interview_fields.html" with form=form prefix="edit" %}
+            <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+                <button type="button" data-close-modal class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold sm:w-auto">Cancel</button>
+                <button type="submit" class="w-full rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white sm:w-auto">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- View modal -->
+<div id="view-interview-modal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-slate-950/50 p-2 sm:p-4">
+    <div class="my-auto max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl sm:max-h-[90vh]">
+        <div class="flex items-center justify-between border-b border-slate-100 px-4 py-4 sm:px-6">
+            <h3 class="text-lg font-bold">Interview Details</h3>
+            <button type="button" data-close-modal class="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+        </div>
+        <div id="view-interview-content" class="space-y-4 p-6 text-sm text-slate-700"></div>
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="delete-interview-modal" class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto bg-slate-950/50 p-2 sm:p-4">
+    <div class="my-auto w-full max-w-md rounded-2xl bg-white p-4 shadow-2xl sm:p-6">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+            <i data-lucide="trash-2" class="h-6 w-6"></i>
+        </div>
+        <h3 class="mt-4 text-lg font-bold">Delete interview?</h3>
+        <p class="mt-2 text-sm text-slate-500">This action cannot be undone.</p>
+        <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button type="button" data-close-modal class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold sm:w-auto">Cancel</button>
+            <button type="button" id="confirm-delete-interview" class="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 sm:w-auto">Delete</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const modalIds = [
+        "create-interview-modal",
+        "edit-interview-modal",
+        "view-interview-modal",
+        "delete-interview-modal",
+    ];
+
+    let deleteId = null;
+
+    const csrfToken = document.querySelector(
+        "#create-interview-form [name=csrfmiddlewaretoken]"
+    )?.value;
+
+    const escapeHTML = (value) => String(value ?? "").replace(
+        /[&<>"']/g,
+        char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+        })[char]
+    );
+
+    function openModal(id) {
+        closeAllModals();
+
+        const modal = document.getElementById(id);
+        if (!modal) return;
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.classList.add("overflow-hidden");
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function closeModal(modal) {
+        if (!modal) return;
+
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+
+        if (!modalIds.some(id => {
+            const element = document.getElementById(id);
+            return element && !element.classList.contains("hidden");
+        })) {
+            document.body.classList.remove("overflow-hidden");
+        }
+    }
+
+    function closeAllModals() {
+        modalIds.forEach(id => {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+            }
+        });
+
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    document.querySelectorAll("[data-open-modal]").forEach(button => {
+        button.addEventListener("click", () => {
+            const form = document.getElementById("create-interview-form");
+            form.reset();
+            clearErrors("create");
+            openModal(button.dataset.openModal);
+        });
+    });
+
+    document.querySelectorAll("[data-close-modal]").forEach(button => {
+        button.addEventListener("click", () => {
+            closeModal(button.closest(".fixed"));
+        });
+    });
+
+    modalIds.forEach(id => {
+        const modal = document.getElementById(id);
+        modal?.addEventListener("click", event => {
+            if (event.target === modal) closeModal(modal);
+        });
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeAllModals();
+    });
+
+    async function request(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                ...(options.body instanceof FormData ? {} : {
+                    "Content-Type": "application/json",
+                }),
+                ...(options.headers || {}),
+            },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            const error = new Error(data.message || "Request failed.");
+            error.data = data;
+            throw error;
+        }
+
+        return data;
+    }
+
+    function showErrors(prefix, errors) {
+        const container = document.getElementById(`${prefix}-form-errors`);
+        if (!container) return;
+
+        const messages = [];
+
+        Object.entries(errors || {}).forEach(([field, items]) => {
+            items.forEach(item => {
+                messages.push(
+                    `${field === "__all__" ? "" : field + ": "}${item.message || item}`
+                );
+            });
+        });
+
+        container.textContent = messages.join(" ");
+        container.classList.remove("hidden");
+    }
+
+    function clearErrors(prefix) {
+        const container = document.getElementById(`${prefix}-form-errors`);
+        if (container) {
+            container.textContent = "";
+            container.classList.add("hidden");
+        }
+    }
+
+    function showToast(message) {
+        let container = document.getElementById("toast-container");
+
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toast-container";
+            container.className =
+                "fixed top-5 right-5 z-[9999] flex w-[calc(100%-2.5rem)] max-w-sm flex-col gap-3";
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement("div");
+        toast.className =
+            "flex items-start gap-3 rounded-xl border border-green-200 bg-white p-4 text-sm text-slate-700 shadow-lg transition-all duration-300";
+        toast.setAttribute("role", "alert");
+
+        const text = document.createElement("p");
+        text.className = "flex-1";
+        text.textContent = message;
+
+        const close = document.createElement("button");
+        close.type = "button";
+        close.textContent = "×";
+        close.className = "text-lg text-slate-400 hover:text-slate-700";
+        close.setAttribute("aria-label", "Close notification");
+        close.addEventListener("click", () => toast.remove());
+
+        toast.append(text, close);
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add("opacity-0", "translate-x-5");
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    function setField(form, name, value) {
+        const field = form.elements.namedItem(name);
+        if (field) field.value = value ?? "";
+    }
+
+    function formatDate(value) {
+        if (!value) return "—";
+
+        return new Intl.DateTimeFormat("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        }).format(new Date(value));
+    }
+
+    function formatTime(value) {
+        if (!value) return "—";
+
+        return new Intl.DateTimeFormat("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(new Date(value));
+    }
+
+    function statusClass(status) {
+        return {
+            scheduled: "bg-blue-50 text-blue-700",
+            completed: "bg-green-50 text-green-700",
+            cancelled: "bg-rose-50 text-rose-700",
+        }[status] || "bg-slate-100 text-slate-600";
+    }
+
+    function renderRow(item) {
+        return `
+            <tr id="interview-row-${escapeHTML(item.id)}">
+                <td class="px-5 py-4">
+                    <p class="text-sm font-semibold text-slate-900">
+                        ${escapeHTML(item.round_name)}
+                    </p>
+                </td>
+                <td class="px-5 py-4">
+                    <p class="text-sm font-medium">
+                        ${escapeHTML(item.company_name)}
+                    </p>
+                    <p class="mt-1 text-xs text-slate-500">
+                        ${escapeHTML(item.job_title)}
+                    </p>
+                </td>
+                <td class="px-5 py-4">
+                    <p class="text-sm">${formatDate(item.scheduled_at)}</p>
+                    <p class="mt-1 text-xs text-slate-500">
+                        ${formatTime(item.scheduled_at)}
+                    </p>
+                </td>
+                <td class="px-5 py-4 text-sm">
+                    ${escapeHTML(item.interview_type_display)}
+                </td>
+                <td class="px-5 py-4">
+                    <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(item.status)}">
+                        ${escapeHTML(item.status_display)}
+                    </span>
+                </td>
+                <td class="px-5 py-4">
+                    <div class="flex justify-end gap-1">
+                        <button type="button"
+                            data-view-interview="${escapeHTML(item.id)}"
+                            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                            title="View">
+                            <i data-lucide="eye" class="h-4 w-4"></i>
+                        </button>
+                        <button type="button"
+                            data-edit-interview="${escapeHTML(item.id)}"
+                            class="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                            title="Edit">
+                            <i data-lucide="pencil" class="h-4 w-4"></i>
+                        </button>
+                        <button type="button"
+                            data-delete-interview="${escapeHTML(item.id)}"
+                            class="rounded-lg p-2 text-rose-500 hover:bg-rose-50"
+                            title="Delete">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    function renderCard(item) {
+        return `
+            <div id="interview-card-${escapeHTML(item.id)}"
+                class="mb-3 rounded-2xl border border-slate-200 bg-white p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-slate-900 truncate">${escapeHTML(item.round_name)}</p>
+                        <p class="mt-0.5 text-xs font-medium text-slate-700 truncate">${escapeHTML(item.company_name)}</p>
+                        <p class="mt-0.5 text-xs text-slate-500 truncate">${escapeHTML(item.job_title)}</p>
+                    </div>
+                    <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(item.status)}">
+                        ${escapeHTML(item.status_display)}
+                    </span>
+                </div>
+                <div class="mt-3 flex items-center gap-4 text-xs text-slate-500">
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                        ${formatDate(item.scheduled_at)}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                        ${formatTime(item.scheduled_at)}
+                    </span>
+                    <span>${escapeHTML(item.interview_type_display)}</span>
+                </div>
+                <div class="mt-3 flex justify-end gap-1 border-t border-slate-100 pt-3">
+                    <button type="button"
+                        data-view-interview="${escapeHTML(item.id)}"
+                        class="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                        title="View">
+                        <i data-lucide="eye" class="h-4 w-4"></i>
+                    </button>
+                    <button type="button"
+                        data-edit-interview="${escapeHTML(item.id)}"
+                        class="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                        title="Edit">
+                        <i data-lucide="pencil" class="h-4 w-4"></i>
+                    </button>
+                    <button type="button"
+                        data-delete-interview="${escapeHTML(item.id)}"
+                        class="rounded-lg p-2 text-rose-500 hover:bg-rose-50"
+                        title="Delete">
+                        <i data-lucide="trash-2" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            </div>`;
+    }
+
+    function upsertRow(item) {
+        // --- Desktop table ---
+        const tbody = document.getElementById("interview-table-body");
+        document.getElementById("empty-interviews-row")?.remove();
+
+        const existingRow = document.getElementById(`interview-row-${item.id}`);
+        if (existingRow) {
+            existingRow.outerHTML = renderRow(item);
+        } else {
+            tbody.insertAdjacentHTML("afterbegin", renderRow(item));
+        }
+
+        // --- Mobile card list ---
+        const cardList = document.getElementById("interview-card-list");
+        document.getElementById("empty-interviews-card")?.remove();
+
+        const existingCard = document.getElementById(`interview-card-${item.id}`);
+        if (existingCard) {
+            existingCard.outerHTML = renderCard(item);
+        } else {
+            cardList.insertAdjacentHTML("afterbegin", renderCard(item));
+        }
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function removeRow(id) {
+        // --- Desktop table ---
+        document.getElementById(`interview-row-${id}`)?.remove();
+        const tbody = document.getElementById("interview-table-body");
+        if (!tbody.querySelector("tr")) {
+            tbody.innerHTML = `
+                <tr id="empty-interviews-row">
+                    <td colspan="6" class="px-5 py-14 text-center text-sm text-slate-500">
+                        No interviews found. Schedule an interview to get started.
+                    </td>
+                </tr>`;
+        }
+
+        // --- Mobile card list ---
+        document.getElementById(`interview-card-${id}`)?.remove();
+        const cardList = document.getElementById("interview-card-list");
+        if (!cardList.querySelector("[id^='interview-card-']")) {
+            cardList.innerHTML = `
+                <div id="empty-interviews-card" class="rounded-2xl border border-slate-200 bg-white px-5 py-14 text-center">
+                    <p class="text-sm text-slate-500">No interviews found. Schedule an interview to get started.</p>
+                </div>`;
+        }
+    }
+
+    function updateCounts() {
+        // Reload the counts from the server while preserving the current filters.
+        // This is a lightweight GET; the current page is not navigated.
+        fetch(window.location.href, {
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+        }).then(() => {
+            // The current list view renders HTML for GET requests.
+            // Counts can be refreshed after the list endpoint returns JSON.
+        }).catch(() => {});
+    }
+
+    document.addEventListener("click", async event => {
+        const viewButton = event.target.closest("[data-view-interview]");
+        const editButton = event.target.closest("[data-edit-interview]");
+        const deleteButton = event.target.closest("[data-delete-interview]");
+
+        if (!viewButton && !editButton && !deleteButton) return;
+
+        const id = (
+            viewButton || editButton || deleteButton
+        ).dataset.viewInterview
+            || (viewButton || editButton || deleteButton).dataset.editInterview
+            || (viewButton || editButton || deleteButton).dataset.deleteInterview;
+
+        try {
+            const result = await request(`/jf/v1/interviews/${id}/`, {
+                headers: {},
+            });
+            const item = result.interview;
+
+            if (viewButton) {
+                const content = document.getElementById("view-interview-content");
+
+                content.innerHTML = `
+                    <div><p class="text-xs text-slate-500">Round</p>
+                        <p class="mt-1 font-semibold">${escapeHTML(item.round_name)}</p></div>
+                    <div><p class="text-xs text-slate-500">Company</p>
+                        <p class="mt-1 font-semibold">${escapeHTML(item.company_name)}</p></div>
+                    <div><p class="text-xs text-slate-500">Job title</p>
+                        <p class="mt-1">${escapeHTML(item.job_title)}</p></div>
+                    <div><p class="text-xs text-slate-500">Schedule</p>
+                        <p class="mt-1">${formatDate(item.scheduled_at)} at ${formatTime(item.scheduled_at)}</p></div>
+                    <div><p class="text-xs text-slate-500">Type / Status</p>
+                        <p class="mt-1">${escapeHTML(item.interview_type_display)} · ${escapeHTML(item.status_display)}</p></div>
+                    ${item.meeting_link ? `<div><a class="text-blue-600 underline" href="${escapeHTML(item.meeting_link)}" target="_blank" rel="noopener noreferrer">Open meeting link</a></div>` : ""}
+                    <div><p class="text-xs text-slate-500">Notes</p>
+                        <p class="mt-1 whitespace-pre-wrap">${escapeHTML(item.notes || "No notes")}</p></div>`;
+
+                openModal("view-interview-modal");
+            }
+
+            if (editButton) {
+                const form = document.getElementById("edit-interview-form");
+                form.action = `/jf/v1/interviews/${id}/edit/`;
+                clearErrors("edit");
+
+                setField(form, "application", item.application_id);
+                setField(form, "round_name", item.round_name);
+                setField(form, "scheduled_at", item.scheduled_at.slice(0, 16));
+                setField(form, "interview_type", item.interview_type);
+                setField(form, "meeting_link", item.meeting_link);
+                setField(form, "notes", item.notes);
+
+                openModal("edit-interview-modal");
+            }
+
+            if (deleteButton) {
+                deleteId = id;
+                openModal("delete-interview-modal");
+            }
+        } catch (error) {
+            showToast(error.data?.message || "Unable to load interview details.");
+        }
+    });
+
+    async function submitForm(form, prefix) {
+        clearErrors(prefix);
+
+        try {
+            const result = await request(form.action, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                },
+                body: new FormData(form),
+            });
+
+            if (result.interview) {
+                upsertRow(result.interview);
+            }
+
+            closeAllModals();
+            showToast(result.message || "Interview saved successfully.");
+            form.reset();
+            updateCounts();
+        } catch (error) {
+            showErrors(prefix, error.data?.errors || {
+                general: [{ message: error.message }],
+            });
+        }
+    }
+
+    document.getElementById("create-interview-form")
+        .addEventListener("submit", event => {
+            event.preventDefault();
+            submitForm(event.currentTarget, "create");
+        });
+
+    document.getElementById("edit-interview-form")
+        .addEventListener("submit", event => {
+            event.preventDefault();
+            submitForm(event.currentTarget, "edit");
+        });
+
+    document.getElementById("confirm-delete-interview")
+        .addEventListener("click", async () => {
+            if (!deleteId) return;
+
+            try {
+                const result = await request(
+                    `/jf/v1/interviews/${deleteId}/delete/`,
+                    {
+                        method: "POST",
+                        headers: { "X-CSRFToken": csrfToken },
+                        body: new FormData(
+                            document.getElementById("create-interview-form")
+                        ),
+                    }
+                );
+
+                removeRow(deleteId);
+                deleteId = null;
+                closeAllModals();
+                showToast(result.message || "Interview deleted successfully.");
+                updateCounts();
+            } catch (error) {
+                showToast(error.message || "Unable to delete interview.");
+            }
+        });
+
+    if (window.lucide) window.lucide.createIcons();
+});
+</script>
+
+{% endblock %}
