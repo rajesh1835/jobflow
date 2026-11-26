@@ -83,21 +83,24 @@ def settings_page(request):
     if request.method == "POST":
         form = UserPreferencesForm(
             request.POST,
-            instance=preferences,
+            instance=preferences
         )
 
         if form.is_valid():
             form.save()
-            messages.success(request, "Your preferences have been saved.")
+
+            messages.success(
+                request,
+                "Settings saved successfully!"
+            )
+
             return redirect("accounts:settings")
+
     else:
         form = UserPreferencesForm(instance=preferences)
 
     return render(
         request,
         "accounts/settings.html",
-        {
-            "form": form,
-            "preferences": preferences,
-        },
+        {"form": form}
     )
