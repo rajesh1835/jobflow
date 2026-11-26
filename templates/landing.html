@@ -93,12 +93,12 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <a href="{% url 'login' %}"
+                <a href="{% url 'accounts:login' %}"
                     class="text-sm font-semibold text-slate-700 hover:text-slate-900 px-4 py-2 rounded-lg hover:bg-slate-100 transition-all">
                     Log in
                 </a>
 
-                <a href="{% url 'register' %}"
+                <a href="{% url 'accounts:register' %}"
                     class="text-sm font-semibold text-white bg-brand hover:bg-brand-hover px-4 py-2 rounded-xl shadow-sm transition-all transform active:scale-95 flex items-center gap-1.5">
                     Get Started
 
@@ -135,7 +135,7 @@
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-16">
-                <a href="{% url 'register' %}"
+                <a href="{% url 'accounts:register' %}"
                     class="w-full sm:w-auto px-6 py-3.5 bg-brand hover:bg-brand-hover text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
                     Start Free Trial
 
@@ -441,7 +441,7 @@
                     </ul>
                 </div>
 
-                <a href="{% url 'register' %}"
+                <a href="{% url 'accounts:register' %}"
                     class="w-full py-3 text-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm transition-colors">
                     Get Started Free
                 </a>
@@ -496,7 +496,7 @@
                     </ul>
                 </div>
 
-                <a href="{% url 'register' %}"
+                <a href="{% url 'accounts:register' %}"
                     class="w-full py-3 text-center rounded-xl bg-brand hover:bg-brand-hover text-white font-semibold text-sm transition-colors shadow-lg shadow-indigo-500/30">
                     Start 14-Day Trial
                 </a>

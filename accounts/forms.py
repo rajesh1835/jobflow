@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from .models import User
-
+from .models import UserPreferences
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -51,3 +51,37 @@ class UserLoginForm(AuthenticationForm):
             }
         ),
     )
+
+
+class UserPreferencesForm(forms.ModelForm):
+    class Meta:
+        model = UserPreferences
+        fields = [
+            "timezone",
+            "date_format",
+            "default_interview_duration",
+            "dashboard_start_page",
+            "interview_reminders",
+            "email_notifications",
+            "application_updates",
+        ]
+
+        widgets = {
+            "timezone": forms.Select(
+                choices=[
+                    ("Asia/Kolkata", "India — Asia/Kolkata"),
+                    ("UTC", "UTC"),
+                    ("America/New_York", "America/New_York"),
+                    ("Europe/London", "Europe/London"),
+                ]
+            ),
+            "default_interview_duration": forms.Select(
+                choices=[
+                    (15, "15 minutes"),
+                    (30, "30 minutes"),
+                    (45, "45 minutes"),
+                    (60, "1 hour"),
+                    (90, "1 hour 30 minutes"),
+                ]
+            ),
+        }

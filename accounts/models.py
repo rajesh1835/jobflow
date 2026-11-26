@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -78,3 +79,53 @@ class User(AbstractUser):
         ordering = ["-date_joined"]
         verbose_name = "User"
         verbose_name_plural = "Users"
+
+
+# User Preferences
+class UserPreferences(models.Model):
+    class DateFormat(models.TextChoices):
+        DMY = "DD/MM/YYYY", "DD/MM/YYYY"
+        MDY = "MM/DD/YYYY", "MM/DD/YYYY"
+        YMD = "YYYY-MM-DD", "YYYY-MM-DD"
+
+    class DashboardPage(models.TextChoices):
+        DASHBOARD = "dashboard", "Dashboard"
+        APPLICATIONS = "applications", "Applications"
+        INTERVIEWS = "interviews", "Interviews"
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="preferences",
+    )
+
+    timezone = models.CharField(
+        max_length=50,
+        default="Asia/Kolkata",
+    )
+
+    date_format = models.CharField(
+        max_length=20,
+        choices=DateFormat.choices,
+        default=DateFormat.DMY,
+    )
+
+    default_interview_duration = models.PositiveSmallIntegerField(
+        default=30,
+    )
+
+    dashboard_start_page = models.CharField(
+        max_length=20,
+        choices=DashboardPage.choices,
+        default=DashboardPage.DASHBOARD,
+    )
+
+    interview_reminders = models.BooleanField(default=True)
+    email_notifications = models.BooleanField(default=True)
+    application_updates = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Preferences for {self.user}"

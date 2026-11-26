@@ -7,6 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dashboard{% endblock %} - JobFlow</title>
 
+    <script>
+        if (localStorage.getItem('jobflow_sidebar_expanded') === 'true') {
+            document.documentElement.classList.add('sidebar-expanded');
+        }
+    </script>
+
     <!-- Tailwind CSS v4 CDN -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <!-- Lucide Icons -->
@@ -21,113 +27,189 @@
     <!-- Mobile Sidebar Backdrop -->
     <div id="sidebar-backdrop"
         class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden transition-opacity duration-300 opacity-0 lg:hidden"
-        onclick="toggleSidebar()"></div>
+        onclick="toggleMobileSidebar()"></div>
 
-    <!-- COMPACT MODERN SIDEBAR -->
+    <!-- FLOATING PILL COLLAPSIBLE SIDEBAR -->
+    <!-- Clicking any empty white space on this sidebar toggles expand/collapse -->
     <aside id="sidebar"
-        class="fixed top-0 bottom-0 left-0 z-50 w-60 bg-white border-r border-slate-100 flex flex-col justify-between transition-transform duration-300 -translate-x-full lg:translate-x-0 px-4 py-5">
+        data-expanded="false"
+        onclick="handleSidebarBackgroundClick(event)"
+        class="fixed top-4 bottom-4 left-4 z-50 w-60 lg:w-[4.25rem] bg-white rounded-[2rem] border border-slate-100/90 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between transition-all duration-300 ease-out -translate-x-[120%] lg:translate-x-0 px-3.5 py-5 cursor-pointer select-none">
 
         <div class="space-y-6">
-            <!-- Brand Logo -->
-            <div class="flex items-center justify-between px-2">
-                <a href="{% url 'dashboard' %}" class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-xs">
-                        <i data-lucide="layers" class="w-4 h-4"></i>
-                    </div>
-                    <span class="text-base font-bold tracking-tight text-slate-900">JobFlow</span>
-                </a>
-                <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+            <!-- Brand Header (Aligned to exact 40px icon column) -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-full bg-slate-950 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </span>
+                    <span class="sidebar-label text-sm font-bold tracking-tight text-slate-950 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0">
+                        JobFlow
+                    </span>
+                </div>
+
+                <button type="button"
+                        onclick="event.stopPropagation(); toggleMobileSidebar();"
+                        aria-label="Close sidebar"
+                        class="lg:hidden p-1.5 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
 
             <!-- Primary Navigation Links -->
-
-            <nav class="space-y-1">
+            <nav class="space-y-2">
 
                 <!-- Dashboard -->
-                <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                <a href="{% url 'dashboard' %}"
+                   title="Dashboard"
+                   class="group/item relative flex items-center h-10 rounded-full text-xs font-medium transition-all duration-200
                     {% if request.resolver_match.url_name == 'dashboard' %}
                         bg-slate-950 text-white shadow-xs
                     {% else %}
-                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                        text-slate-600 hover:bg-slate-100/80 hover:text-slate-950
                     {% endif %}">
-                    <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
-                    <span>Dashboard</span>
+                    <span class="w-10 h-10 flex items-center justify-center shrink-0">
+                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    </span>
+                    <span class="sidebar-label pr-4 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0 lg:pr-0">
+                        Dashboard
+                    </span>
+                    <span class="sidebar-tooltip hidden lg:group-hover/item:block pointer-events-none absolute left-14 z-50 rounded-lg bg-slate-950 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md whitespace-nowrap">
+                        Dashboard
+                    </span>
                 </a>
 
                 <!-- Companies -->
-                <a href="{% url 'companies:list' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                <a href="{% url 'companies:list' %}"
+                   title="Companies"
+                   class="group/item relative flex items-center h-10 rounded-full text-xs font-medium transition-all duration-200
                     {% if request.resolver_match.namespace == 'companies' %}
                         bg-slate-950 text-white shadow-xs
                     {% else %}
-                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                        text-slate-600 hover:bg-slate-100/80 hover:text-slate-950
                     {% endif %}">
-                    <i data-lucide="building-2" class="w-4 h-4 shrink-0"></i>
-                    <span>Companies</span>
+                    <span class="w-10 h-10 flex items-center justify-center shrink-0">
+                        <i data-lucide="building-2" class="w-4 h-4"></i>
+                    </span>
+                    <span class="sidebar-label pr-4 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0 lg:pr-0">
+                        Companies
+                    </span>
+                    <span class="sidebar-tooltip hidden lg:group-hover/item:block pointer-events-none absolute left-14 z-50 rounded-lg bg-slate-950 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md whitespace-nowrap">
+                        Companies
+                    </span>
                 </a>
 
                 <!-- Applications -->
-                <a href="{% url 'applications:list' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                <a href="{% url 'applications:list' %}"
+                   title="Applications"
+                   class="group/item relative flex items-center h-10 rounded-full text-xs font-medium transition-all duration-200
                     {% if request.resolver_match.namespace == 'applications' or request.resolver_match.url_name == 'applications' %}
                         bg-slate-950 text-white shadow-xs
                     {% else %}
-                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                        text-slate-600 hover:bg-slate-100/80 hover:text-slate-950
                     {% endif %}">
-                    <i data-lucide="file-text" class="w-4 h-4 shrink-0"></i>
-                    <span>Applications</span>
+                    <span class="w-10 h-10 flex items-center justify-center shrink-0">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                    </span>
+                    <span class="sidebar-label pr-4 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0 lg:pr-0">
+                        Applications
+                    </span>
+                    <span class="sidebar-tooltip hidden lg:group-hover/item:block pointer-events-none absolute left-14 z-50 rounded-lg bg-slate-950 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md whitespace-nowrap">
+                        Applications
+                    </span>
                 </a>
 
                 <!-- Interviews -->
-                <a href="{% url 'interviews:list' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                <a href="{% url 'interviews:list' %}"
+                   title="Interviews"
+                   class="group/item relative flex items-center h-10 rounded-full text-xs font-medium transition-all duration-200
                     {% if request.resolver_match.namespace == 'interviews' or request.resolver_match.url_name == 'interviews' %}
                         bg-slate-950 text-white shadow-xs
                     {% else %}
-                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                        text-slate-600 hover:bg-slate-100/80 hover:text-slate-950
                     {% endif %}">
-                    <i data-lucide="calendar" class="w-4 h-4 shrink-0"></i>
-                    <span>Interviews</span>
+                    <span class="w-10 h-10 flex items-center justify-center shrink-0">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                    </span>
+                    <span class="sidebar-label pr-4 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0 lg:pr-0">
+                        Interviews
+                    </span>
+                    <span class="sidebar-tooltip hidden lg:group-hover/item:block pointer-events-none absolute left-14 z-50 rounded-lg bg-slate-950 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md whitespace-nowrap">
+                        Interviews
+                    </span>
                 </a>
 
                 <!-- Analytics -->
-                <a href="{% url 'analytics' %}" class="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium rounded-2xl transition
+                <a href="{% url 'analytics' %}"
+                   title="Analytics"
+                   class="group/item relative flex items-center h-10 rounded-full text-xs font-medium transition-all duration-200
                     {% if request.resolver_match.namespace == 'analytics' or request.resolver_match.url_name == 'analytics' %}
                         bg-slate-950 text-white shadow-xs
                     {% else %}
-                        text-slate-600 hover:bg-slate-50 hover:text-slate-900
+                        text-slate-600 hover:bg-slate-100/80 hover:text-slate-950
                     {% endif %}">
-                    <i data-lucide="bar-chart-2" class="w-4 h-4 shrink-0"></i>
-                    <span>Analytics</span>
+                    <span class="w-10 h-10 flex items-center justify-center shrink-0">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                    </span>
+                    <span class="sidebar-label pr-4 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0 lg:pr-0">
+                        Analytics
+                    </span>
+                    <span class="sidebar-tooltip hidden lg:group-hover/item:block pointer-events-none absolute left-14 z-50 rounded-lg bg-slate-950 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md whitespace-nowrap">
+                        Analytics
+                    </span>
                 </a>
 
             </nav>
-
         </div>
 
         <!-- Sidebar Bottom Footer -->
-        <div class="pt-4 border-t border-slate-100 space-y-1">
-            <a href="#"
-                class="flex items-center gap-3 px-3.5 py-2 text-xs font-medium rounded-2xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition">
-                <i data-lucide="settings" class="w-4 h-4 text-slate-400 shrink-0"></i>
-                <span>Settings</span>
+        <div class="pt-3 border-t border-slate-100 space-y-2">
+            <!-- Settings -->
+            <a href="{% url 'accounts:settings' %}"
+               title="Settings"
+               class="group/item relative flex items-center h-10 rounded-full text-xs font-medium transition-all duration-200
+                {% if request.resolver_match.url_name == 'settings' %}
+                    bg-slate-950 text-white shadow-xs
+                {% else %}
+                    text-slate-500 hover:bg-slate-100/80 hover:text-slate-950
+                {% endif %}">
+                <span class="w-10 h-10 flex items-center justify-center shrink-0">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </span>
+                <span class="sidebar-label pr-4 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0 lg:pr-0">
+                    Settings
+                </span>
+                <span class="sidebar-tooltip hidden lg:group-hover/item:block pointer-events-none absolute left-14 z-50 rounded-lg bg-slate-950 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md whitespace-nowrap">
+                    Settings
+                </span>
             </a>
-            <a href="{% url 'logout' %}"
-                class="flex items-center gap-3 px-3.5 py-2 text-xs font-medium rounded-2xl text-rose-600 hover:bg-rose-50 transition">
-                <i data-lucide="log-out" class="w-4 h-4 text-rose-500 shrink-0"></i>
-                <span>Logout</span>
+
+            <!-- Logout -->
+            <a href="{% url 'accounts:logout' %}"
+               title="Logout"
+               class="group/item relative flex items-center h-10 rounded-full text-xs font-medium text-rose-600 hover:bg-rose-50 transition-all duration-200">
+                <span class="w-10 h-10 flex items-center justify-center shrink-0">
+                    <i data-lucide="log-out" class="w-4 h-4 text-rose-500"></i>
+                </span>
+                <span class="sidebar-label pr-4 whitespace-nowrap overflow-hidden transition-all duration-200 lg:opacity-0 lg:w-0 lg:pr-0">
+                    Logout
+                </span>
+                <span class="sidebar-tooltip hidden lg:group-hover/item:block pointer-events-none absolute left-14 z-50 rounded-lg bg-rose-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-md whitespace-nowrap">
+                    Logout
+                </span>
             </a>
         </div>
     </aside>
 
     <!-- CONTENT WRAPPER -->
-    <div class="lg:pl-60 flex flex-col flex-1 min-h-screen">
+    <div id="main-wrapper" class="lg:pl-[6.25rem] flex flex-col flex-1 min-h-screen transition-all duration-300 ease-out">
 
-        <!-- MINIMAL TOP NAVIGATION  -->
+        <!-- MINIMAL TOP NAVIGATION -->
         <header
-            class="sticky top-5 z-30 h-16 bg-[#f8f9fc]/80 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between gap-4">
+            class="sticky top-4 z-30 h-16 bg-[#f8f9fc]/80 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between gap-4">
 
             <div class="flex items-center gap-3 flex-1">
-                <button onclick="toggleSidebar()" class="p-2 -ml-2 rounded-xl text-slate-600 hover:bg-white lg:hidden">
+                <button onclick="toggleMobileSidebar()" class="p-2 -ml-2 rounded-xl text-slate-600 hover:bg-white lg:hidden">
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
 
@@ -180,12 +262,12 @@
                             class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 transition">
                             <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i> Profile
                         </a>
-                        <a href="#"
+                        <a href="{% url 'accounts:settings' %}"
                             class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-600 hover:bg-slate-50 transition">
-                            <i data-lucide="sliders" class="w-3.5 h-3.5 text-slate-400"></i> Preferences
+                            <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-400"></i> Settings
                         </a>
                         <div class="border-t border-slate-100 my-1"></div>
-                        <a href="{% url 'logout' %}"
+                        <a href="{% url 'accounts:logout' %}"
                             class="flex items-center gap-2.5 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 transition">
                             <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
                         </a>
@@ -199,7 +281,7 @@
             {% block content %}{% endblock %}
         </main>
     </div>
-    
+
     {% if messages %}
     <div id="toast-container"
         class="fixed top-5 right-5 z-[9999] flex w-[calc(100%-2.5rem)] max-w-sm flex-col gap-3">
@@ -226,18 +308,76 @@
     <script>
         lucide.createIcons();
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mainWrapper = document.getElementById('main-wrapper');
+        const sidebarLabels = document.querySelectorAll('.sidebar-label');
+        const sidebarTooltips = document.querySelectorAll('.sidebar-tooltip');
+
+        function applyDesktopSidebarState(expanded) {
+            if (!sidebar || !mainWrapper) return;
+            sidebar.setAttribute('data-expanded', expanded ? 'true' : 'false');
+
+            if (expanded) {
+                sidebar.classList.remove('lg:w-[4.25rem]');
+                sidebar.classList.add('lg:w-60');
+                mainWrapper.classList.remove('lg:pl-[6.25rem]');
+                mainWrapper.classList.add('lg:pl-[17rem]');
+
+                sidebarLabels.forEach(el => {
+                    el.classList.remove('lg:opacity-0', 'lg:w-0', 'lg:pr-0');
+                    el.classList.add('lg:opacity-100', 'lg:w-auto');
+                });
+
+                sidebarTooltips.forEach(tip => {
+                    tip.classList.remove('lg:group-hover/item:block');
+                });
+            } else {
+                sidebar.classList.add('lg:w-[4.25rem]');
+                sidebar.classList.remove('lg:w-60');
+                mainWrapper.classList.add('lg:pl-[6.25rem]');
+                mainWrapper.classList.remove('lg:pl-[17rem]');
+
+                sidebarLabels.forEach(el => {
+                    el.classList.add('lg:opacity-0', 'lg:w-0', 'lg:pr-0');
+                    el.classList.remove('lg:opacity-100', 'lg:w-auto');
+                });
+
+                sidebarTooltips.forEach(tip => {
+                    tip.classList.add('lg:group-hover/item:block');
+                });
+            }
+        }
+
+        function toggleDesktopSidebar() {
+            if (window.innerWidth < 1024) return;
+            const isCurrentlyExpanded = sidebar.getAttribute('data-expanded') === 'true';
+            const nextState = !isCurrentlyExpanded;
+            applyDesktopSidebarState(nextState);
+            localStorage.setItem('jobflow_sidebar_expanded', nextState ? 'true' : 'false');
+        }
+
+        // Expand/collapse when clicking anywhere on the white space of the sidebar (ignoring link/button clicks)
+        function handleSidebarBackgroundClick(event) {
+            if (window.innerWidth < 1024) return;
+            if (event.target.closest('a, button')) return;
+            toggleDesktopSidebar();
+        }
+
+        // Restore saved state (defaults to collapsed icons-only if not set)
+        const savedSidebarState = localStorage.getItem('jobflow_sidebar_expanded') === 'true';
+        applyDesktopSidebarState(savedSidebarState);
+
+        function toggleMobileSidebar() {
             const backdrop = document.getElementById('sidebar-backdrop');
-            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            const isOpen = !sidebar.classList.contains('-translate-x-[120%]');
             if (isOpen) {
-                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.add('-translate-x-[120%]');
                 backdrop.classList.add('opacity-0');
                 setTimeout(() => backdrop.classList.add('hidden'), 300);
             } else {
                 backdrop.classList.remove('hidden');
                 setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
-                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.remove('-translate-x-[120%]');
             }
         }
 
@@ -276,7 +416,7 @@
             }
         });
     </script>
-    
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const toasts = document.querySelectorAll(".toast-message");

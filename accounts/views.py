@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
-from .forms import UserRegistrationForm, UserLoginForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+from .models import UserPreferences
+from .forms import UserRegistrationForm, UserLoginForm, UserPreferencesForm
+
 
 # User Registration
 def register(request):
@@ -67,3 +71,36 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect("home")
+
+
+# User Preferences
+@login_required
+def settings_page(request):
+    preferences, created = UserPreferences.objects.get_or_create(
+        user=request.user
+    )
+
+    if request.method == "POST":
+        form = UserPreferencesForm(
+            request.POST,
+            instance=preferences
+        )
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(
+                request,
+                "Settings saved successfully!"
+            )
+
+            return redirect("accounts:settings")
+
+    else:
+        form = UserPreferencesForm(instance=preferences)
+
+    return render(
+        request,
+        "accounts/settings.html",
+        {"form": form}
+    )
